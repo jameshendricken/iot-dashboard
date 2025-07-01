@@ -6,7 +6,7 @@ function Dashboard({ userId }) {
   const [devices, setDevices] = useState([]);
 
   useEffect(() => {
-    axios.get(`http://localhost:8000/dashboard/${userId}`).then((res) => {
+    axios.get(`https://iot-backend-p66k.onrender.com/data`).then((res) => {
       setDevices(res.data);
     });
   }, [userId]);
