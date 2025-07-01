@@ -31,10 +31,27 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-@app.get("/data")
-def get_data():
-    return cursor.execute("SELECT * FROM device_data").fetchall()
-    # return [{"device_id": "fountain-01", "volume_dispensed": 1.2, "timestamp": "2025-07-01T12:00:00"}]
+# @app.get("/data")
+# def get_data(data: VolumeData):
+#     try:
+#         cursor.execute(
+#             "SELECT * FROM device_data WHERE device_id, volume_ml, timestamp) VALUES (%s, %s, %s)",
+#             (data.device_id, data.volume_ml, data.timestamp)
+#         )
+#         conn.commit()
+#         return {"status": "ok"}
+#     except Exception as e:
+#         raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/data/{device_id}")
+def get_device_data(device_id: str):
+    with conn.cursor() as cur:
+        cur.execute("SELECT * FROM device_data WHERE device_id = %s ORDER BY timestamp DESC", (device_id,))
+        rows = cur.fetchall()
+        if not rows:
+            raise HTTPException(status_code=404, detail="No data found")
+        return rows
+
 
 @app.post("/ingest")
 def ingest_data(data: VolumeData):
