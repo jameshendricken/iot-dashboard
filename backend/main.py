@@ -45,7 +45,7 @@ app.add_middleware(
 
 @app.get("/data/{device_id}")
 def get_device_data(device_id: str):
-        cursor.execute("SELECT * FROM device_data WHERE device_id = %s ORDER BY timestamp DESC", (device_id,))
+        cursor.execute("SELECT volume_ml FROM device_data WHERE device_id = %s ORDER BY timestamp DESC", (device_id,))
         rows = cursor.fetchall()
         if not rows:
             raise HTTPException(status_code=404, detail="No data found")
