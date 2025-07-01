@@ -22,6 +22,10 @@ class VolumeData(BaseModel):
     volume_ml: int
     timestamp: datetime
 
+@app.get("/data")
+def get_data():
+    return [{"device_id": "fountain-01", "volume_dispensed": 1.2, "timestamp": "2025-07-01T12:00:00"}]
+
 @app.post("/ingest")
 def ingest_data(data: VolumeData):
     try:
