@@ -43,6 +43,17 @@ app.add_middleware(
 #     except Exception as e:
 #         raise HTTPException(status_code=500, detail=str(e))
 
+
+
+@app.get("/devices")
+def get_devices():
+    cursor.execute("SELECT device_id, name FROM devices")
+    rows = cursor.fetchall()
+    if not rows:
+        raise HTTPException(status_code=404, detail="No devices found")
+    return [{"device_id": row[0], "name": row[1]} for row in rows]
+
+# The following endpoint gets the values for the inputted device_id
 @app.get("/data/{device_id}")
 def get_device_data(device_id: str):
         cursor.execute("SELECT volume_ml FROM device_data WHERE device_id = %s ORDER BY timestamp DESC", (device_id,))

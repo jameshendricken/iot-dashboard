@@ -1,7 +1,12 @@
-import React from 'react';
+import React from "react";
+import DeviceData from "./DeviceData";
 
 function App() {
-  return <h1>Hello from React!</h1>;
+  return (
+    <div className="App">
+      <DeviceData />
+    </div>
+  );
 }
 
 export default App;
