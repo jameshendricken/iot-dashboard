@@ -48,10 +48,3 @@ def get_dashboard(user_id: int):
         WHERE d.owner_id = %s
         GROUP BY d.device_id, d.name
     """, (user_id,))
-
-
-@app.post("/devices")
-def add_device(device: Device):
-    # Insert into DB
-    rows = cursor.fetchall()
-    return [DeviceSummary(device_id=row[0], name=row[1], total_volume=row[2]) for row in rows]
