@@ -4,6 +4,7 @@ from pydantic import BaseModel
 from datetime import datetime
 import os
 import psycopg2
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
 
@@ -21,6 +22,14 @@ class VolumeData(BaseModel):
     device_id: str
     volume_ml: int
     timestamp: datetime
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Or specify your Vercel frontend URL
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 @app.get("/data")
 def get_data():
