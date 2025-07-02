@@ -1,6 +1,10 @@
 import React, { useEffect, useState } from "react";
 
+// Ensure the API URL is defined, otherwise log an error
 const API_URL = process.env.REACT_APP_API_BASE;
+if (!API_URL) {
+  console.error("REACT_APP_API_BASE is not defined. Please set it in your .env file.");
+}
 
 export default function DeviceData() {
   const [deviceIds, setDeviceIds] = useState([]);
