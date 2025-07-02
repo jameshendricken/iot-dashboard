@@ -68,14 +68,19 @@ export default function DeviceData() {
             </tr>
           </thead>
           <tbody>
-            {data.map((entry, idx) => (
-              <tr key={idx} className="hover:bg-gray-50">
-                <td className="p-2 border">
-                  {new Date(entry.timestamp).toLocaleString()}
-                </td>
-                <td className="p-2 border">{entry.volume}</td>
-              </tr>
-            ))}
+            {data.map((entry, idx) => {
+              const date = new Date(entry.timestamp);
+              return (
+                <tr key={idx} className="hover:bg-gray-50">
+                  <td className="p-2 border">
+                    {isNaN(date.getTime())
+                      ? "Invalid date"
+                      : date.toLocaleString()}
+                  </td>
+                  <td className="p-2 border">{entry.volume_ml}</td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       )}
