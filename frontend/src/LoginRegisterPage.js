@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -11,6 +10,7 @@ export default function LoginRegisterPage({ onLogin }) {
   });
   const [error, setError] = useState("");
   const [userEmail, setUserEmail] = useState(localStorage.getItem("userEmail") || null);
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -33,10 +33,14 @@ export default function LoginRegisterPage({ onLogin }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+    setIsLoading(true);
+
     if (isRegistering && formData.password !== formData.confirmPassword) {
       setError("Passwords do not match");
+      setIsLoading(false);
       return;
     }
+
     const endpoint = isRegistering ? "/register" : "/login";
     try {
       const res = await fetch(`https://iot-backend-p66k.onrender.com${endpoint}`, {
@@ -50,6 +54,7 @@ export default function LoginRegisterPage({ onLogin }) {
       setUserEmail(formData.email);
     } catch (err) {
       setError(err.message);
+      setIsLoading(false);
     }
   };
 
@@ -111,9 +116,17 @@ export default function LoginRegisterPage({ onLogin }) {
             {error && <p className="text-red-500 text-sm text-center">{error}</p>}
             <button
               type="submit"
-              className="w-full bg-indigo-600 text-white py-2 rounded-md hover:bg-indigo-700 transition"
+              className="w-full flex justify-center items-center gap-2 bg-indigo-600 text-white py-2 rounded-md hover:bg-indigo-700 transition"
+              disabled={isLoading}
             >
-              {isRegistering ? "Register" : "Login"}
+              {isLoading ? (
+                <svg className="animate-spin h-5 w-5 text-white" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+                </svg>
+              ) : (
+                isRegistering ? "Register" : "Login"
+              )}
             </button>
           </form>
           <p className="mt-4 text-center text-sm text-gray-600">
