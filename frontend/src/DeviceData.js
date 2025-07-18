@@ -219,7 +219,7 @@ export default function DeviceData() {
         </div>
         <div className="bg-white shadow rounded p-4 text-center">
           <p className="text-gray-500 text-sm">Bottles Saved</p>
-          <p className="text-2xl font-bold text-blue-600">{bottlesSaved.toFixed(0)} 500Ml Bottles</p>
+          <p className="text-2xl font-bold text-blue-600">{bottlesSaved.toFixed(0)}</p>
         </div>
         <div className="bg-white shadow rounded p-4 text-center">
           <p className="text-gray-500 text-sm">Plastic Saved (kg)</p>
