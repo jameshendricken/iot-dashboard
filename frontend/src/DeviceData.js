@@ -11,6 +11,7 @@ export default function DeviceData() {
   const [selectedDevice, setSelectedDevice] = useState("");
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   // Fetch device IDs on load
   useEffect(() => {
@@ -20,13 +21,17 @@ export default function DeviceData() {
         setDeviceIds(devices.map((d) => d.device_id));
         if (devices.length > 0) setSelectedDevice(devices[0].device_id);
       })
-      .catch((err) => console.error("Error fetching devices:", err));
+      .catch((err) => {
+        console.error("Error fetching devices:", err);
+        setError("Failed to fetch device list.");
+      });
   }, []);
 
   // Fetch data when a device is selected
   useEffect(() => {
     if (!selectedDevice) return;
     setLoading(true);
+    setError("");
     fetch(`${API_URL}/data/${selectedDevice}`)
       .then((res) => res.json())
       .then((json) => {
@@ -36,12 +41,14 @@ export default function DeviceData() {
         } else {
           console.error("Expected array but got:", json);
           setData([]);
+          setError("Unexpected data format received.");
         }
         setLoading(false);
       })
       .catch((err) => {
         console.error(err);
         setLoading(false);
+        setError("Failed to fetch device data.");
       });
   }, [selectedDevice]);
 
@@ -64,6 +71,10 @@ export default function DeviceData() {
           </option>
         ))}
       </select>
+
+      {error && (
+        <p className="text-red-500 mb-4">{error}</p>
+      )}
 
       {loading ? (
         <p>Loading data...</p>
