@@ -66,7 +66,14 @@ export default function DeviceData() {
         }
 
         setTotalVolume(summaryJson.total_volume || 0);
-        setHistogramData(histogramJson || []);
+        setHistogramData(
+          Array.isArray(histogramJson)
+            ? histogramJson.map((entry) => ({
+                timestamp: entry.timestamp,
+                total_volume: Number(entry.total_volume),
+              }))
+            : []
+        );
         setLoading(false);
       } catch (err) {
         console.error(err);
@@ -213,19 +220,18 @@ export default function DeviceData() {
 
           <div className="h-64">
             {histogramData.length === 0 ? (
-              <p>No histogram data available.</p>
+              <p className="text-gray-500 italic">No usage data to display for this period.</p>
             ) : (
-              <p className="text-sm text-gray-600 mb-2">Histogram of total volume dispensed per day</p>
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={histogramData} margin={{ top: 20, right: 30, left: 0, bottom: 5 }}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="timestamp" tickFormatter={(tick) => tick.split("T")[0]} />
+                  <YAxis />
+                  <Tooltip />
+                  <Bar dataKey="total_volume" fill="#8884d8" />
+                </BarChart>
+              </ResponsiveContainer>
             )}
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={histogramData} margin={{ top: 20, right: 30, left: 0, bottom: 5 }}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="timestamp" tickFormatter={(tick) => tick.split("T")[0]} />
-                <YAxis />
-                <Tooltip />
-                <Bar dataKey="total_volume" fill="#8884d8" />
-              </BarChart>
-            </ResponsiveContainer>
           </div>
         </>
       )}
