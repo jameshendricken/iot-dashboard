@@ -21,9 +21,9 @@ export default function DeviceData() {
   const [customStart, setCustomStart] = useState(new Date("2020-01-01"));
   const [customEnd, setCustomEnd] = useState(new Date("2099-12-31"));
 
-  const bottlesSaved = totalVolume * 2;
-  const plasticSaved = bottlesSaved * 0.02;
-  const socialCost = plasticSaved * 0.022;
+  const bottlesSaved = (totalVolume/1000) * 2; // Assuming 500ml bottles, so 2 bottles per liter
+  const plasticSaved = bottlesSaved * 0.02; // Assuming 20g of plastic per 500ml bottle
+  const socialCost = plasticSaved * 0.022; // Assuming €0.022 per gram of plastic saved
 
   useEffect(() => {
     fetch(`${API_URL}/devices`)
@@ -215,15 +215,15 @@ export default function DeviceData() {
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
         <div className="bg-white shadow rounded p-4 text-center">
           <p className="text-gray-500 text-sm">Total Volume Dispensed</p>
-          <p className="text-2xl font-bold text-green-600">{totalVolume.toFixed(2)} mL</p>
+          <p className="text-2xl font-bold text-green-600">{(totalVolume.toFixed(2)/1000)} Liters</p>
         </div>
         <div className="bg-white shadow rounded p-4 text-center">
           <p className="text-gray-500 text-sm">Bottles Saved</p>
-          <p className="text-2xl font-bold text-blue-600">{bottlesSaved.toFixed(0)}</p>
+          <p className="text-2xl font-bold text-blue-600">{bottlesSaved.toFixed(0)} 500Ml Bottles</p>
         </div>
         <div className="bg-white shadow rounded p-4 text-center">
           <p className="text-gray-500 text-sm">Plastic Saved (kg)</p>
-          <p className="text-2xl font-bold text-purple-600">{plasticSaved.toFixed(2)}</p>
+          <p className="text-2xl font-bold text-purple-600">{plasticSaved.toFixed(2)} Kg</p>
         </div>
         <div className="bg-white shadow rounded p-4 text-center">
           <p className="text-gray-500 text-sm">Social Cost of Carbon (€)</p>
