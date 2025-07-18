@@ -79,6 +79,9 @@ export default function LoginRegisterPage({ onLogin }) {
       )}
       <div className="flex items-center justify-center py-12">
         <div className="w-full max-w-md p-8 bg-white rounded-lg shadow-lg">
+          <div className="flex justify-center mb-6">
+            <img src="/logo.png" alt="Logo" className="h-12 w-auto" />
+          </div>
           <h2 className="text-2xl font-bold text-center text-indigo-600 mb-6">
             {isRegistering ? "Create an Account" : "Sign In to Dashboard"}
           </h2>
