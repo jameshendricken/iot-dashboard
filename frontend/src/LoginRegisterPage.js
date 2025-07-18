@@ -9,6 +9,7 @@ export default function LoginRegisterPage({ onLogin }) {
     confirmPassword: ""
   });
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState(false);
   const [userEmail, setUserEmail] = useState(localStorage.getItem("userEmail") || null);
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
@@ -33,6 +34,7 @@ export default function LoginRegisterPage({ onLogin }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+    setSuccess(false);
     setIsLoading(true);
 
     if (isRegistering && formData.password !== formData.confirmPassword) {
@@ -50,8 +52,11 @@ export default function LoginRegisterPage({ onLogin }) {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.detail || "Authentication failed");
-      localStorage.setItem("userEmail", formData.email);
-      setUserEmail(formData.email);
+      setSuccess(true);
+      setTimeout(() => {
+        localStorage.setItem("userEmail", formData.email);
+        setUserEmail(formData.email);
+      }, 1000);
     } catch (err) {
       setError(err.message);
       setIsLoading(false);
@@ -114,10 +119,17 @@ export default function LoginRegisterPage({ onLogin }) {
               </div>
             )}
             {error && <p className="text-red-500 text-sm text-center">{error}</p>}
+            {success && (
+              <div className="flex justify-center">
+                <svg className="h-6 w-6 text-green-500 animate-bounce" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
+            )}
             <button
               type="submit"
               className="w-full flex justify-center items-center gap-2 bg-indigo-600 text-white py-2 rounded-md hover:bg-indigo-700 transition"
-              disabled={isLoading}
+              disabled={isLoading || success}
             >
               {isLoading ? (
                 <svg className="animate-spin h-5 w-5 text-white" viewBox="0 0 24 24">
