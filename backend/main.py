@@ -71,7 +71,10 @@ def get_device_data(device_id: str):
             raise HTTPException(status_code=404, detail="No data found")
 
         return JSONResponse(content=[
-            {"timestamp": row[0], "volume_ml": row[1]} for row in rows
+            {
+        "timestamp": row[0].isoformat() if isinstance(row[0], datetime) else row[0],
+        "volume_ml": row[1]
+    } for row in rows
         ])
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
