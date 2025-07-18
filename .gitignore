@@ -24,3 +24,6 @@ yarn-error.log*
 .vscode/
 .idea/
 *.swp
+
+# DB
+/db/relational structure.txt
