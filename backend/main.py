@@ -25,7 +25,10 @@ class VolumeData(BaseModel):
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://iot-dashboard-4soqvlp52-james-hendrickens-projects.vercel.app"],
+    allow_origins=[
+        "https://iot-dashboard-wine-alpha.vercel.app",
+        "https://iot-dashboard-4soqvlp52-james-hendrickens-projects.vercel.app"
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
