@@ -212,7 +212,11 @@ export default function DeviceData() {
           </table>
 
           <div className="h-64">
-            console.log("Histogram Data:", histogramData);
+            {histogramData.length === 0 ? (
+              <p>No histogram data available.</p>
+            ) : (
+              <p className="text-sm text-gray-600 mb-2">Histogram of total volume dispensed per day</p>
+            )}
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={histogramData} margin={{ top: 20, right: 30, left: 0, bottom: 5 }}>
                 <CartesianGrid strokeDasharray="3 3" />
