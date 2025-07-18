@@ -279,12 +279,12 @@ def register_user(user: UserAuth):
         cursor = conn.cursor()
 
         # Check if user already exists
-        cursor.execute("SELECT id FROM "user" WHERE email = %s", (user.email,))
+        cursor.execute("SELECT id FROM users WHERE email = %s", (user.email,))
         if cursor.fetchone():
             raise HTTPException(status_code=400, detail="User already exists")
 
         hashed_password = pwd_context.hash(user.password)
-        cursor.execute("INSERT INTO "user" (email, password) VALUES (%s, %s)", (user.email, hashed_password))
+        cursor.execute("INSERT INTO users (email, password) VALUES (%s, %s)", (user.email, hashed_password))
         conn.commit()
         cursor.close()
         conn.close()
@@ -297,7 +297,7 @@ def login_user(user: UserAuth):
     try:
         conn = get_connection()
         cursor = conn.cursor()
-        cursor.execute("SELECT password FROM "user" WHERE email = %s", (user.email,))
+        cursor.execute("SELECT password FROM users WHERE email = %s", (user.email,))
         row = cursor.fetchone()
         cursor.close()
         conn.close()
