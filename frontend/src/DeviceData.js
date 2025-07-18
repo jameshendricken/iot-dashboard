@@ -117,7 +117,7 @@ export default function DeviceData() {
         return { start: customStart, end: customEnd };
       case "all":
       default:
-        return { start: new Date(), end: new Date() };
+        return { start: new Date("2020-01-01"), end: new Date("2099-12-31") };
     }
   };
 
