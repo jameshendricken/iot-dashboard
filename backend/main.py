@@ -36,12 +36,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-class DeviceDataOut(BaseModel):
-    timestamp: datetime
-    volume_ml: float
-
-    class Config:
-        orm_mode = True
 
 # @app.get("/data")
 # def get_data(data: VolumeData):
@@ -106,10 +100,10 @@ def ingest_data(data: VolumeData):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-# class DeviceSummary(BaseModel):
-#     device_id: str
-#     name: str
-#     total_volume: int
+class DeviceSummary(BaseModel):
+    device_id: str
+    name: str
+    total_volume: int
 
 @app.get("/dashboard/{user_id}")
 def get_dashboard(user_id: int):
