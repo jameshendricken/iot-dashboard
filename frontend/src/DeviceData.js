@@ -30,7 +30,13 @@ export default function DeviceData() {
     fetch(`${API_URL}/data/${selectedDevice}`)
       .then((res) => res.json())
       .then((json) => {
-        setData(json);
+        console.log("Fetched data:", json);
+        if (Array.isArray(json)) {
+          setData(json);
+        } else {
+          console.error("Expected array but got:", json);
+          setData([]);
+        }
         setLoading(false);
       })
       .catch((err) => {
@@ -73,8 +79,7 @@ export default function DeviceData() {
           </thead>
           <tbody>
             {data.map((entry, idx) => {
-              console.log("Timestamp raw:", entry.timestamp);
-              {console.log("entry:", entry)}
+              console.log("entry:", entry);
               const date = new Date(entry.timestamp);
               return (
                 <tr key={idx} className="hover:bg-gray-50">
@@ -83,8 +88,7 @@ export default function DeviceData() {
                       ? "Invalid date"
                       : date.toLocaleString()}
                   </td>
-                  <td className="p-2 border">
-                    {entry.volume_ml}</td>
+                  <td className="p-2 border">{entry.volume_ml}</td>
                 </tr>
               );
             })}
@@ -94,4 +98,3 @@ export default function DeviceData() {
     </div>
   );
 }
-
