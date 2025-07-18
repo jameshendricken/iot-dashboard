@@ -120,107 +120,111 @@ export default function DeviceData() {
   };
 
   return (
-    <div className="p-4 max-w-3xl mx-auto">
-      <h2 className="text-2xl font-semibold mb-4">Device Data Viewer</h2>
+    <div className="p-4 max-w-4xl mx-auto bg-gray-50 rounded-lg shadow-lg">
+      <h2 className="text-3xl font-bold text-center mb-6 text-gray-700">Device Data Dashboard</h2>
 
-      <label htmlFor="device-select" className="block mb-2 font-medium">
-        Select a device:
-      </label>
-      <select
-        id="device-select"
-        value={selectedDevice}
-        onChange={(e) => setSelectedDevice(e.target.value)}
-        className="mb-4 border border-gray-300 p-2 rounded w-full"
-      >
-        {deviceIds.map((id) => (
-          <option key={id} value={id}>{id}</option>
-        ))}
-      </select>
+      <div className="grid sm:grid-cols-2 gap-6 mb-6">
+        <div>
+          <label htmlFor="device-select" className="block mb-2 text-sm font-semibold text-gray-600">
+            Select a device:
+          </label>
+          <select
+            id="device-select"
+            value={selectedDevice}
+            onChange={(e) => setSelectedDevice(e.target.value)}
+            className="w-full border border-gray-300 rounded-md p-2"
+          >
+            {deviceIds.map((id) => (
+              <option key={id} value={id}>{id}</option>
+            ))}
+          </select>
+        </div>
 
-      <div className="mb-4">
-        <label className="block font-medium mb-1">Select time range:</label>
-        <select
-          value={dateRange}
-          onChange={(e) => setDateRange(e.target.value)}
-          className="border border-gray-300 p-2 rounded w-full mb-2"
+        <div>
+          <label className="block mb-2 text-sm font-semibold text-gray-600">Select time range:</label>
+          <select
+            value={dateRange}
+            onChange={(e) => setDateRange(e.target.value)}
+            className="w-full border border-gray-300 rounded-md p-2"
+          >
+            <option value="today">Today</option>
+            <option value="thisWeek">This Week</option>
+            <option value="thisMonth">This Month</option>
+            <option value="lastMonth">Last Month</option>
+            <option value="all">All Data</option>
+            <option value="custom">Custom Range</option>
+          </select>
+        </div>
+      </div>
+
+      {dateRange === "custom" && (
+        <div className="flex gap-4 mb-6">
+          <DatePicker
+            selected={customStart}
+            onChange={(date) => setCustomStart(date)}
+            selectsStart
+            startDate={customStart}
+            endDate={customEnd}
+            placeholderText="Start Date"
+            className="border p-2 rounded w-full"
+          />
+          <DatePicker
+            selected={customEnd}
+            onChange={(date) => setCustomEnd(date)}
+            selectsEnd
+            startDate={customStart}
+            endDate={customEnd}
+            minDate={customStart}
+            placeholderText="End Date"
+            className="border p-2 rounded w-full"
+          />
+        </div>
+      )}
+
+      <div className="flex justify-between items-center mb-6">
+        <div className="bg-white shadow rounded p-4 w-full text-center">
+          <p className="text-gray-500 text-sm">Total Volume Dispensed</p>
+          <p className="text-2xl font-bold text-green-600">{totalVolume} mL</p>
+        </div>
+        <button
+          onClick={downloadCSV}
+          className="ml-4 bg-green-500 hover:bg-green-600 text-white font-medium px-4 py-2 rounded shadow"
         >
-          <option value="today">Today</option>
-          <option value="thisWeek">This Week</option>
-          <option value="thisMonth">This Month</option>
-          <option value="lastMonth">Last Month</option>
-          <option value="all">All Data</option>
-          <option value="custom">Custom Range</option>
-        </select>
-
-        {dateRange === "custom" && (
-          <div className="flex gap-4">
-            <DatePicker
-              selected={customStart}
-              onChange={(date) => setCustomStart(date)}
-              selectsStart
-              startDate={customStart}
-              endDate={customEnd}
-              placeholderText="Start Date"
-              className="border p-2 rounded"
-            />
-            <DatePicker
-              selected={customEnd}
-              onChange={(date) => setCustomEnd(date)}
-              selectsEnd
-              startDate={customStart}
-              endDate={customEnd}
-              minDate={customStart}
-              placeholderText="End Date"
-              className="border p-2 rounded"
-            />
-          </div>
-        )}
+          ⬇ Download CSV
+        </button>
       </div>
 
-      <button
-        onClick={downloadCSV}
-        className="mb-4 bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
-      >
-        Download CSV
-      </button>
-
-      {error && <p className="text-red-500 mb-4">{error}</p>}
-
-      <div className="bg-blue-100 p-4 rounded mb-4">
-        Total Dispensed Volume: <strong>{totalVolume} mL</strong>
-      </div>
+      {error && <p className="text-red-500 text-center mb-4">{error}</p>}
 
       {loading ? (
-        <p>Loading data...</p>
+        <p className="text-center text-gray-500">Loading data...</p>
       ) : data.length === 0 ? (
-        <p>No data available for this device.</p>
+        <p className="text-center text-gray-500">No data available for this device.</p>
       ) : (
         <>
-          <table className="w-full border mb-6">
+          <table className="min-w-full divide-y divide-gray-200 shadow rounded overflow-hidden mb-6">
             <thead className="bg-gray-100">
               <tr>
-                <th className="p-2 border">Timestamp</th>
-                <th className="p-2 border">Volume (mL)</th>
+                <th className="px-4 py-2 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Timestamp</th>
+                <th className="px-4 py-2 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Volume (mL)</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody className="bg-white divide-y divide-gray-100">
               {data.map((entry, idx) => {
                 const date = new Date(entry.timestamp);
                 return (
                   <tr key={idx} className="hover:bg-gray-50">
-                    <td className="p-2 border">
-                      {isNaN(date.getTime()) ? "Invalid date" : date.toLocaleString()}
-                    </td>
-                    <td className="p-2 border">{entry.volume_ml}</td>
+                    <td className="px-4 py-2">{isNaN(date.getTime()) ? "Invalid date" : date.toLocaleString()}</td>
+                    <td className="px-4 py-2">{entry.volume_ml}</td>
                   </tr>
                 );
               })}
             </tbody>
           </table>
 
-          <div className="h-64">
+          <div className="h-80 bg-white rounded shadow p-4">
             {histogramData.length === 0 ? (
-              <p className="text-gray-500 italic">No usage data to display for this period.</p>
+              <p className="text-gray-500 italic text-center">No usage data to display for this period.</p>
             ) : (
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={histogramData} margin={{ top: 20, right: 30, left: 0, bottom: 5 }}>
@@ -228,7 +232,7 @@ export default function DeviceData() {
                   <XAxis dataKey="timestamp" tickFormatter={(tick) => tick.split("T")[0]} />
                   <YAxis />
                   <Tooltip />
-                  <Bar dataKey="total_volume" fill="#8884d8" />
+                  <Bar dataKey="total_volume" fill="#4F46E5" radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             )}
