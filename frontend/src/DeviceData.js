@@ -34,6 +34,18 @@ export default function DeviceData() {
       });
   }, []);
 
+  const fetchAllUsers = async () => {u
+    try {
+      const res = await fetch(`${API_URL}/users`);
+      if (!res.ok) throw new Error("Failed to fetch users");
+      const users = await res.json();
+      return users;
+    } catch (err) {
+      console.error("Error fetching users:", err);
+      return [];
+    }
+  };
+
   useEffect(() => {
     if (!selectedDevice) return;
     const { start, end } = getDateRange(dateRange);

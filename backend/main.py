@@ -191,3 +191,74 @@ def get_volume_histogram(device_id: str, start: str, end: str, interval: str = "
         ]
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/summary/{device_id}")
+def get_summary(device_id: str, start: str = None, end: str = None, user_email: str = None):
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
+
+        query = """
+            SELECT SUM(dd.volume_ml) as total_volume
+            FROM device_data dd
+            JOIN device d ON dd.device_id = d.id
+            JOIN "user" u ON d.user_id = u.id
+            WHERE dd.device_id = %s
+        """
+        params = [device_id]
+
+        if user_email:
+            query += " AND u.email = %s"
+            params.append(user_email)
+        if start:
+            query += " AND dd.timestamp >= %s"
+            params.append(start)
+        if end:
+            query += " AND dd.timestamp <= %s"
+            params.append(end)
+
+        cursor.execute(query, tuple(params))
+        result = cursor.fetchone()
+        cursor.close()
+        conn.close()
+
+        return {"total_volume_ml": result[0] or 0}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/histogram/{device_id}")
+def get_histogram(device_id: str, start: str = None, end: str = None, user_email: str = None):
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
+
+        query = """
+            SELECT DATE_TRUNC('day', dd.timestamp) as day, SUM(dd.volume_ml)
+            FROM device_data dd
+            JOIN device d ON dd.device_id = d.id
+            JOIN "user" u ON d.user_id = u.id
+            WHERE dd.device_id = %s
+        """
+        params = [device_id]
+
+        if user_email:
+            query += " AND u.email = %s"
+            params.append(user_email)
+        if start:
+            query += " AND dd.timestamp >= %s"
+            params.append(start)
+        if end:
+            query += " AND dd.timestamp <= %s"
+            params.append(end)
+
+        query += " GROUP BY day ORDER BY day ASC"
+
+        cursor.execute(query, tuple(params))
+        rows = cursor.fetchall()
+        cursor.close()
+        conn.close()
+
+        return [{"day": row[0].isoformat(), "total_volume_ml": row[1]} for row in rows]
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
