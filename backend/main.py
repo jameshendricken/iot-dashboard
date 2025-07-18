@@ -262,3 +262,49 @@ def get_histogram(device_id: str, start: str = None, end: str = None, user_email
         return [{"day": row[0].isoformat(), "total_volume_ml": row[1]} for row in rows]
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+from pydantic import BaseModel
+from passlib.context import CryptContext
+
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+class UserAuth(BaseModel):
+    email: str
+    password: str
+
+@app.post("/register")
+def register_user(user: UserAuth):
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
+
+        # Check if user already exists
+        cursor.execute("SELECT id FROM "user" WHERE email = %s", (user.email,))
+        if cursor.fetchone():
+            raise HTTPException(status_code=400, detail="User already exists")
+
+        hashed_password = pwd_context.hash(user.password)
+        cursor.execute("INSERT INTO "user" (email, password) VALUES (%s, %s)", (user.email, hashed_password))
+        conn.commit()
+        cursor.close()
+        conn.close()
+        return {"message": "User registered successfully"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/login")
+def login_user(user: UserAuth):
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
+        cursor.execute("SELECT password FROM "user" WHERE email = %s", (user.email,))
+        row = cursor.fetchone()
+        cursor.close()
+        conn.close()
+
+        if not row or not pwd_context.verify(user.password, row[0]):
+            raise HTTPException(status_code=401, detail="Invalid credentials")
+
+        return {"message": "Login successful"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
