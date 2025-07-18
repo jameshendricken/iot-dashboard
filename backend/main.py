@@ -1,55 +1,60 @@
 
 from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
-from datetime import datetime
-import os
-import psycopg2
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
-
+import psycopg2
+import os
 
 app = FastAPI()
 
-# Database connection
-conn = psycopg2.connect(
-    dbname=os.getenv("POSTGRES_DB", "iot"),
-    user=os.getenv("POSTGRES_USER", "postgres"),
-    password=os.getenv("POSTGRES_PASSWORD", "secret"),
-    host=os.getenv("POSTGRES_HOST", "db"),
-    port="5432"
-)
-cursor = conn.cursor()
-
-class VolumeData(BaseModel):
-    device_id: str
-    volume_ml: int
-    timestamp: datetime
-
+# CORS setup
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "https://iot-dashboard-wine-alpha.vercel.app",
-        "https://iot-dashboard-4soqvlp52-james-hendrickens-projects.vercel.app"
-    ],
+    allow_origins=["*"],  # Or your Vercel domain only
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
+def get_connection():
+    return psycopg2.connect(
+        dbname=os.getenv("POSTGRES_DB", "iot"),
+        user=os.getenv("POSTGRES_USER", "postgres"),
+        password=os.getenv("POSTGRES_PASSWORD", "secret"),
+        host=os.getenv("POSTGRES_HOST", "db"),
+        port="5432",
+        sslmode="require"
+    )
 
-# @app.get("/data")
-# def get_data(data: VolumeData):
-#     try:
-#         cursor.execute(
-#             "SELECT * FROM device_data WHERE device_id, volume_ml, timestamp) VALUES (%s, %s, %s)",
-#             (data.device_id, data.volume_ml, data.timestamp)
-#         )
-#         conn.commit()
-#         return {"status": "ok"}
-#     except Exception as e:
-#         raise HTTPException(status_code=500, detail=str(e))
+@app.get("/data/{device_id}")
+def get_device_data(device_id: str):
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
+        cursor.execute("""
+            SELECT timestamp, volume_ml
+            FROM device_data
+            WHERE device_id = %s
+            ORDER BY timestamp DESC
+        """, (device_id,))
+        rows = cursor.fetchall()
+        cursor.close()
+        conn.close()
+
+        if not rows:
+            raise HTTPException(status_code=404, detail="No data found")
+
+        return JSONResponse(content=[
+            {"timestamp": row[0], "volume_ml": row[1]} for row in rows
+        ])
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 
+class VolumeData(BaseModel):
+    device_id: str
+    volume_ml: int
+    timestamp: datetime
 
 @app.get("/devices")
 def get_devices():
@@ -60,32 +65,22 @@ def get_devices():
     return [{"device_id": row[0], "name": row[1]} for row in rows]
 
 
-
-# The following endpoint gets the values for the inputted device_id
 # @app.get("/data/{device_id}")
 # def get_device_data(device_id: str):
-#         cursor.execute("SELECT volume_ml FROM device_data WHERE device_id = %s ORDER BY timestamp DESC", (device_id,))
-#         rows = cursor.fetchall()
-#         if not rows:
-#             raise HTTPException(status_code=404, detail="No data found")
-#         return rows
+#     cursor.execute("""
+#         SELECT timestamp, volume_ml
+#         FROM device_data
+#         WHERE device_id = %s
+#         ORDER BY timestamp DESC
+#     """, (device_id,))
+#     rows = cursor.fetchall()
 
-@app.get("/data/{device_id}")
-def get_device_data(device_id: str):
-    cursor.execute("""
-        SELECT timestamp, volume_ml
-        FROM device_data
-        WHERE device_id = %s
-        ORDER BY timestamp DESC
-    """, (device_id,))
-    rows = cursor.fetchall()
+#     if not rows:
+#         raise HTTPException(status_code=404, detail="No data found")
 
-    if not rows:
-        raise HTTPException(status_code=404, detail="No data found")
-
-    # Format rows as list of dicts
-    result = [{"timestamp": row[0], "volume_ml": row[1]} for row in rows]
-    return JSONResponse(content=result)
+#     # Format rows as list of dicts
+#     result = [{"timestamp": row[0], "volume_ml": row[1]} for row in rows]
+#     return JSONResponse(content=result)
 
 
 @app.post("/ingest")
