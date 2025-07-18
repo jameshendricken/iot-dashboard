@@ -53,16 +53,20 @@ def ingest_data(data: VolumeData):
 
 # Get data for a specific device
 @app.get("/data/{device_id}")
-def get_device_data(device_id: str):
+def get_device_data(device_id: str, start: str = None, end: str = None):
     try:
         conn = get_connection()
         cursor = conn.cursor()
-        cursor.execute("""
-            SELECT timestamp, volume_ml
-            FROM device_data
-            WHERE device_id = %s
-            ORDER BY timestamp DESC
-        """, (device_id,))
+        query = "SELECT timestamp, volume_ml FROM device_data WHERE device_id = %s"
+        params = [device_id]
+        if start:
+            query += " AND timestamp >= %s"
+            params.append(start)
+        if end:
+            query += " AND timestamp <= %s"
+            params.append(end)
+        query += " ORDER BY timestamp DESC"
+        cursor.execute(query, tuple(params))
         rows = cursor.fetchall()
         cursor.close()
         conn.close()
