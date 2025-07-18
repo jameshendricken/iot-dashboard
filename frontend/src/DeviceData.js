@@ -73,6 +73,8 @@ export default function DeviceData() {
           </thead>
           <tbody>
             {data.map((entry, idx) => {
+              console.log("Timestamp raw:", entry.timestamp);
+              {console.log("entry:", entry)}
               const date = new Date(entry.timestamp);
               return (
                 <tr key={idx} className="hover:bg-gray-50">
@@ -81,7 +83,8 @@ export default function DeviceData() {
                       ? "Invalid date"
                       : date.toLocaleString()}
                   </td>
-                  <td className="p-2 border">{entry.volume_ml}</td>
+                  <td className="p-2 border">
+                    {entry.volume_ml}</td>
                 </tr>
               );
             })}
