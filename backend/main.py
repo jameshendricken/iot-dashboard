@@ -126,3 +126,64 @@ def get_dashboard(user_id: int):
         ]
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+from fastapi import Query
+from typing import Optional
+
+@app.get("/data/{device_id}/summary")
+def get_volume_summary(device_id: str, start: Optional[str] = Query(None), end: Optional[str] = Query(None)):
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
+
+        sql = "SELECT SUM(volume_ml) FROM device_data WHERE device_id = %s"
+        params = [device_id]
+
+        if start:
+            sql += " AND timestamp >= %s"
+            params.append(start)
+        if end:
+            sql += " AND timestamp <= %s"
+            params.append(end)
+
+        cursor.execute(sql, tuple(params))
+        total_volume = cursor.fetchone()[0] or 0
+
+        cursor.close()
+        conn.close()
+
+        return {"total_volume": total_volume}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/data/{device_id}/histogram")
+def get_volume_histogram(device_id: str, start: str, end: str, interval: str = "day"):
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
+
+        if interval == "hour":
+            date_trunc = "hour"
+        else:
+            date_trunc = "day"
+
+        cursor.execute(f"""
+            SELECT date_trunc(%s, timestamp) AS period, SUM(volume_ml)
+            FROM device_data
+            WHERE device_id = %s AND timestamp BETWEEN %s AND %s
+            GROUP BY period
+            ORDER BY period
+        """, (date_trunc, device_id, start, end))
+
+        rows = cursor.fetchall()
+        cursor.close()
+        conn.close()
+
+        return [
+            {"timestamp": row[0].isoformat(), "total_volume": row[1]}
+            for row in rows
+        ]
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))

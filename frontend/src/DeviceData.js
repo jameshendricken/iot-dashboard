@@ -11,7 +11,6 @@ export default function DeviceData() {
   const [selectedDevice, setSelectedDevice] = useState("");
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
 
   // Fetch device IDs on load
   useEffect(() => {
@@ -21,34 +20,22 @@ export default function DeviceData() {
         setDeviceIds(devices.map((d) => d.device_id));
         if (devices.length > 0) setSelectedDevice(devices[0].device_id);
       })
-      .catch((err) => {
-        console.error("Error fetching devices:", err);
-        setError("Failed to fetch device list.");
-      });
+      .catch((err) => console.error("Error fetching devices:", err));
   }, []);
 
   // Fetch data when a device is selected
   useEffect(() => {
     if (!selectedDevice) return;
     setLoading(true);
-    setError("");
     fetch(`${API_URL}/data/${selectedDevice}`)
       .then((res) => res.json())
       .then((json) => {
-        console.log("Fetched data:", json);
-        if (Array.isArray(json)) {
-          setData(json);
-        } else {
-          console.error("Expected array but got:", json);
-          setData([]);
-          setError("Unexpected data format received.");
-        }
+        setData(json);
         setLoading(false);
       })
       .catch((err) => {
         console.error(err);
         setLoading(false);
-        setError("Failed to fetch device data.");
       });
   }, [selectedDevice]);
 
@@ -72,10 +59,6 @@ export default function DeviceData() {
         ))}
       </select>
 
-      {error && (
-        <p className="text-red-500 mb-4">{error}</p>
-      )}
-
       {loading ? (
         <p>Loading data...</p>
       ) : data.length === 0 ? (
@@ -90,7 +73,8 @@ export default function DeviceData() {
           </thead>
           <tbody>
             {data.map((entry, idx) => {
-              console.log("entry:", entry);
+              console.log("Timestamp raw:", entry.timestamp);
+              {console.log("entry:", entry)}
               const date = new Date(entry.timestamp);
               return (
                 <tr key={idx} className="hover:bg-gray-50">
@@ -99,7 +83,8 @@ export default function DeviceData() {
                       ? "Invalid date"
                       : date.toLocaleString()}
                   </td>
-                  <td className="p-2 border">{entry.volume_ml}</td>
+                  <td className="p-2 border">
+                    {entry.volume_ml}</td>
                 </tr>
               );
             })}
@@ -109,3 +94,4 @@ export default function DeviceData() {
     </div>
   );
 }
+
