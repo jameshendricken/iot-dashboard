@@ -53,7 +53,7 @@ function App() {
           path="/admin/devices"
           element={
             user && role === "admin" ? (
-              <Layout userEmail={user} org={org} onLogout={handleLogout}>
+              <Layout userEmail={user} org={org} role={role} onLogout={handleLogout}>
                 <AdminDevicesPage />
               </Layout>
             ) : (
