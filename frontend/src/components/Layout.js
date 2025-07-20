@@ -8,6 +8,7 @@ export default function Layout({ userEmail, org, role, onLogout, children }) {
         <div>
           <p className="text-lg font-semibold">{userEmail}</p>
           <p className="text-sm text-gray-500 italic">Org: {org}</p>
+          <p className="text-sm text-gray-500 italic">Role: {role}</p>
           {role === "admin" && (
             <Link
               to="/admin/devices"
