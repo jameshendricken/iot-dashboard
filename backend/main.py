@@ -38,10 +38,12 @@ class VolumeData(BaseModel):
 @app.post("/ingest")
 def ingest_data(data: VolumeData):
     try:
+        timestamp_str = data.timestamp.isoformat()
         print(f"Ingesting data: {data}")
+        print(f"timestamp_str: {timestamp_str}")
         conn = get_connection()
         cursor = conn.cursor()
-        timestamp_str = data.timestamp.isoformat()
+        
 
         cursor.execute(
             "INSERT INTO device_data (device_id, volume_ml, timestamp) VALUES (%s, %s, %s)",
