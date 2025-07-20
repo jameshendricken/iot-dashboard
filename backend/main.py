@@ -309,9 +309,9 @@ def login_user(user: UserAuth):
     try:
         conn = get_connection()
         cursor = conn.cursor()
-        cursor.execute("SELECT password_hash, organisation_id FROM users WHERE email = %s", (user.email,))
+        cursor.execute("SELECT id, password_hash, organisation_id FROM users WHERE email = %s", (user.email,))
         row = cursor.fetchone()
-        
+
         # Step 1: Verify user credentials
         if not row or not pwd_context.verify(user.password, row[0]):
             cursor.close()
