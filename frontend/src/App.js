@@ -2,13 +2,25 @@ import React, { useState } from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import LoginRegisterPage from "./LoginRegisterPage";
 import DeviceData from "./DeviceData";
+import AdminDevicesPage from "./pages/AdminDevicesPage";
 import Layout from "./components/Layout";
 
 function App() {
   const [user, setUser] = useState(localStorage.getItem("userEmail"));
+  const [org, setOrg] = useState(localStorage.getItem("userOrg"));
 
-  const handleLogin = (email) => {
+  const handleLogin = (email, organisation) => {
     setUser(email);
+    setOrg(organisation);
+    localStorage.setItem("userEmail", email);
+    localStorage.setItem("userOrg", organisation);
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem("userEmail");
+    localStorage.removeItem("userOrg");
+    setUser(null);
+    setOrg(null);
   };
 
   return (
@@ -19,10 +31,7 @@ function App() {
           path="/dashboard"
           element={
             user ? (
-              <Layout userEmail={user} onLogout={() => {
-                localStorage.removeItem("userEmail");
-                setUser(null);
-              }}>
+              <Layout userEmail={user} orgName={org} onLogout={handleLogout}>
                 <DeviceData />
               </Layout>
             ) : (
@@ -30,18 +39,18 @@ function App() {
             )
           }
         />
-        {/* <Route
-              path="/admin/devices"
-              element={
-                user && org === "admin" ? (
-                  <Layout userEmail={user} onLogout={handleLogout}>
-                    <Admin />
-                  </Layout>
-                ) : (
-                  <Navigate to="/" replace />
-                )
-              }
-          /> */}
+        <Route
+          path="/admin/devices"
+          element={
+            user && org === "admin" ? (
+              <Layout userEmail={user} orgName={org} onLogout={handleLogout}>
+                <AdminDevicesPage />
+              </Layout>
+            ) : (
+              <Navigate to="/" replace />
+            )
+          }
+        />
       </Routes>
     </Router>
   );
