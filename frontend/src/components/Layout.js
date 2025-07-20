@@ -1,6 +1,7 @@
 import React from "react";
 
 export default function Layout({ userEmail, org, onLogout, children }) {
+  print("Layout component loaded with userEmail:", userEmail, "and org:", org);
   return (
     <div className="min-h-screen bg-gray-100">
       <header className="w-full bg-white shadow p-4 flex justify-between items-center">
