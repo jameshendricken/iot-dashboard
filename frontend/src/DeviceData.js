@@ -152,7 +152,7 @@ export default function DeviceData() {
           >
             {deviceIds.map((d) => (
             <option key={d.device_id} value={d.device_id}>
-              {d.device_name}</option>
+              {d.name}</option>
             ))}
           </select>
         </div>
