@@ -41,7 +41,7 @@ function App() {
           path="/dashboard"
           element={
             user ? (
-              <Layout userEmail={user} org={org} onLogout={handleLogout}>
+              <Layout userEmail={user} org={org} role={role} onLogout={handleLogout}>
                 <DeviceData />
               </Layout>
             ) : (

@@ -1,14 +1,14 @@
 import React from "react";
 import { Link } from "react-router-dom";
 
-export default function Layout({ userEmail, org, onLogout, children }) {
+export default function Layout({ userEmail, org, role, onLogout, children }) {
   return (
     <div className="min-h-screen bg-gray-100">
       <header className="w-full bg-white shadow p-4 flex justify-between items-center">
         <div>
           <p className="text-lg font-semibold">{userEmail}</p>
           <p className="text-sm text-gray-500 italic">Org: {org}</p>
-          {org === "admin" && (
+          {role === "admin" && (
             <Link
               to="/admin/devices"
               className="mt-2 inline-block text-sm text-indigo-600 hover:underline"
