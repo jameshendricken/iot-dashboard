@@ -38,6 +38,7 @@ class VolumeData(BaseModel):
 @app.post("/ingest")
 def ingest_data(data: VolumeData):
     try:
+        print(f"Ingesting data: {data}")
         conn = get_connection()
         cursor = conn.cursor()
         cursor.execute(
