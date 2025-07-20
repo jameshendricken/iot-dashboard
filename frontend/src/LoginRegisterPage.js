@@ -55,7 +55,7 @@ export default function LoginRegisterPage({ onLogin }) {
       if (!res.ok) throw new Error(data.detail || "Authentication failed");
       setSuccess(true);
       setTimeout(() => {
-        console.log(res.json());
+        console.log(data);
         localStorage.setItem("userEmail", formData.email);
         localStorage.setItem("userOrg", data.userOrg || "default_org"); // Assuming the backend returns userOrg
         setUserEmail(formData.email);
