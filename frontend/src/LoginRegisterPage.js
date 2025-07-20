@@ -11,6 +11,7 @@ export default function LoginRegisterPage({ onLogin }) {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
   const [userEmail, setUserEmail] = useState(localStorage.getItem("userEmail") || null);
+  const [userOrg, setUserOrg] = useState(localStorage.getItem("userOrg") || null);
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
@@ -55,6 +56,7 @@ export default function LoginRegisterPage({ onLogin }) {
       setSuccess(true);
       setTimeout(() => {
         localStorage.setItem("userEmail", formData.email);
+        localStorage.setItem("userOrg", data.userOrg || "default_org"); // Assuming the backend returns userOrg
         setUserEmail(formData.email);
       }, 1000);
     } catch (err) {
