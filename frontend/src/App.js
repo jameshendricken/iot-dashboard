@@ -43,18 +43,18 @@ function App() {
             )
           }
         />
-        {/* <Route
+        <Route
           path="/admin/devices"
           element={
             user && org === "admin" ? (
-              <Layout userEmail={user} orgName={org} onLogout={handleLogout}>
+              <Layout userEmail={user} org={org} onLogout={handleLogout}>
                 <AdminDevicesPage />
               </Layout>
             ) : (
               <Navigate to="/" replace />
             )
           }
-        /> */}
+        />
       </Routes>
     </Router>
   );
