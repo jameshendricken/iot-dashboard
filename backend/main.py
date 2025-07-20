@@ -313,7 +313,7 @@ def login_user(user: UserAuth):
         row = cursor.fetchone()
 
         # Step 1: Verify user credentials
-        if not row or not pwd_context.verify(user.password, row[0]):
+        if not row or not pwd_context.verify(user.password, row[1]):
             cursor.close()
             conn.close()
             raise HTTPException(status_code=401, detail="Invalid credentials")
