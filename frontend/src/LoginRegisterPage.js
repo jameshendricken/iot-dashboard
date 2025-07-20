@@ -17,7 +17,7 @@ export default function LoginRegisterPage({ onLogin }) {
 
   useEffect(() => {
     if (userEmail) {
-      onLogin(userEmail, data.userOrg);
+      onLogin(userEmail, userOrg);
       navigate("/dashboard");
     }
   }, [userEmail, userOrg, navigate, onLogin]);
