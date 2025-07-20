@@ -9,7 +9,8 @@ export default function Layout({ userEmail, org, role, onLogout, children }) {
           <p className="text-lg font-semibold">{userEmail}</p>
           <p className="text-sm text-gray-500 italic">Org: {org}</p>
           <p className="text-sm text-gray-500 italic">Role: {role}</p>
-          {role === "admin" && (
+        </div>
+        {role === "admin" && (
             <Link
               to="/admin/devices"
               className="mt-2 inline-block text-sm text-indigo-600 hover:underline"
@@ -17,7 +18,6 @@ export default function Layout({ userEmail, org, role, onLogout, children }) {
               Admin Panel
             </Link>
           )}
-        </div>
         <Link
               to="/dashboard"
               className="mt-2 inline-block text-sm text-indigo-600 hover:underline"
