@@ -39,7 +39,7 @@ function App() {
             )
           }
         />
-        <Route
+        {/* <Route
           path="/admin/devices"
           element={
             user && org === "admin" ? (
@@ -50,7 +50,7 @@ function App() {
               <Navigate to="/" replace />
             )
           }
-        />
+        /> */}
       </Routes>
     </Router>
   );
