@@ -324,9 +324,9 @@ def login_user(user: UserAuth):
         cursor.execute("SELECT name FROM organisations WHERE id = %s", (org_id,))
         org_row = cursor.fetchone()
 
-        cursor.close()
-
         if not org_row:
+            cursor.close()
+            conn.close()
             raise HTTPException(status_code=404, detail="Organisation not found")
 
         org_name = org_row[0]
