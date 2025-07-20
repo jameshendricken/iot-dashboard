@@ -315,7 +315,29 @@ def login_user(user: UserAuth):
         conn.close()
 
         if not row or not pwd_context.verify(user.password, row[0]):
+            cursor.close()
+            conn.close()
             raise HTTPException(status_code=401, detail="Invalid credentials")
+        
+        user_id, _, org_id = row
+
+        # Step 2: Get organisation name
+        cursor.execute("SELECT name FROM organisations WHERE id = %s", (org_id,))
+        org_row = cursor.fetchone()
+
+        cursor.close()
+        conn.close()
+
+        if not org_row:
+            raise HTTPException(status_code=404, detail="Organisation not found")
+
+        org_name = org_row[0]
+
+        # Step 3: Return required info
+        return {
+            "email": user.email,
+            "org": org_name  # this is what frontend will store
+        }
 
         return {"message": "Login successful"}
     except Exception as e:
