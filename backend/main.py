@@ -54,6 +54,7 @@ def ingest_data(data: VolumeData):
         conn.close()
         return {"status": "ok"}
     except Exception as e:
+        print("🔥 ERROR:", repr(e))  # use repr to get full error details
         raise HTTPException(status_code=500, detail=str(e))
 
 # Get data for a specific device
