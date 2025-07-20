@@ -1,20 +1,3 @@
-// import React from "react";
-// import DeviceData from "./DeviceData";
-// import Layout from "./components/Layout";
-// import './index.css';
-
-// function App() {
-//   return (
-//     <div className="App">
-//       <DeviceData />
-//     </div>
-//   );
-// }
-
-// export default App;
-
-
-
 import React, { useState } from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import LoginRegisterPage from "./LoginRegisterPage";
@@ -47,6 +30,18 @@ function App() {
         )
       }
     />
+    <Route
+          path="/admin/devices"
+          element={
+            user && org === "admin" ? (
+              <Layout userEmail={user} onLogout={handleLogout}>
+                <Admin />
+              </Layout>
+            ) : (
+              <Navigate to="/" replace />
+            )
+          }
+        />
       </Routes>
     </Router>
   );
