@@ -29,8 +29,8 @@ export default function DeviceData() {
     fetch(`${API_URL}/devices`)
       .then((res) => res.json())
       .then((devices) => {
-        setDeviceIds(devices.map((d) => d.name));
-        if (devices.length > 0) setSelectedDevice(devices[0].name);
+        setDeviceIds(devices.map((d) => d.device_id));
+        if (devices.length > 0) setSelectedDevice(devices[0].device_id);
       })
       .catch((err) => {
         console.error("Error fetching devices:", err);
@@ -151,7 +151,7 @@ export default function DeviceData() {
             className="w-full border border-gray-300 rounded-md p-2"
           >
             {deviceIds.map((id) => (
-              <option key={id} value={id}>{id}</option>
+              <option key={id} value={id}>{d.name}</option>
             ))}
           </select>
         </div>
