@@ -30,7 +30,7 @@ export default function DeviceData() {
       .then((res) => res.json())
       .then((devices) => {
         setDeviceIds(devices.map((d) => d.name));
-        if (devices.length > 0) setSelectedDevice(devices[0].device_id);
+        if (devices.length > 0) setSelectedDevice(devices[0].name);
       })
       .catch((err) => {
         console.error("Error fetching devices:", err);
