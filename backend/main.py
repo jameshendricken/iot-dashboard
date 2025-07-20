@@ -325,7 +325,6 @@ def login_user(user: UserAuth):
         org_row = cursor.fetchone()
 
         cursor.close()
-        conn.close()
 
         if not org_row:
             raise HTTPException(status_code=404, detail="Organisation not found")
