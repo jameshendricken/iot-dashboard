@@ -8,6 +8,7 @@ import Layout from "./components/Layout";
 function App() {
   const [user, setUser] = useState(localStorage.getItem("userEmail"));
   const [org, setOrg] = useState(localStorage.getItem("userOrg"));
+  console.log("App.js component loaded with user:", user, "and org:", org);
 
   const handleLogin = (email, organisation) => {
     setUser(email);
