@@ -20,7 +20,6 @@ function App() {
     setOrg(organisation);
     setRole(user_role);
     console.log("Handling login for user:", email, "with org:", organisation, "and role:", user_role);
-    console.log("User logged in successfully");
     
   };
 
