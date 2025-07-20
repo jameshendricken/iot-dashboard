@@ -59,6 +59,7 @@ export default function LoginRegisterPage({ onLogin }) {
         localStorage.setItem("userEmail", formData.email);
         localStorage.setItem("userOrg", data.org || "default_org"); // Assuming the backend returns userOrg
         setUserEmail(formData.email);
+        setUserOrg(data.org);
       }, 1000);
     } catch (err) {
       setError(err.message);
