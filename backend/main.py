@@ -44,6 +44,12 @@ def ingest_data(data: VolumeData):
         conn = get_connection()
         cursor = conn.cursor()
         
+        cursor.execute("SELECT 1 FROM devices WHERE device_id = %s", (data.device_id,))
+        exists = cursor.fetchone()
+
+        if not exists:
+         cursor.execute("INSERT INTO devices (device_id) VALUES (%s)", (data.device_id,))
+
 
         cursor.execute(
             "INSERT INTO device_data (device_id, volume_ml, timestamp) VALUES (%s, %s, %s)",
