@@ -12,6 +12,7 @@ export default function LoginRegisterPage({ onLogin }) {
   const [success, setSuccess] = useState(false);
   const [userEmail, setUserEmail] = useState(localStorage.getItem("userEmail") || null);
   const [userOrg, setUserOrg] = useState(localStorage.getItem("userOrg") || null);
+  const [userRole, setUserRole] = useState(localStorage.getItem("userRole") || null);
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
@@ -58,8 +59,10 @@ export default function LoginRegisterPage({ onLogin }) {
         console.log(data);
         localStorage.setItem("userEmail", formData.email);
         localStorage.setItem("userOrg", data.org || "default_org"); // Assuming the backend returns userOrg
+        localStorage.setItem("userRole", data.role || "user"); // Assuming the backend returns userRole
         setUserEmail(formData.email);
         setUserOrg(data.org);
+        setUserRole(data.role);
       }, 1000);
     } catch (err) {
       setError(err.message);
