@@ -41,9 +41,11 @@ def ingest_data(data: VolumeData):
         print(f"Ingesting data: {data}")
         conn = get_connection()
         cursor = conn.cursor()
+        timestamp_str = data.timestamp.isoformat()
+
         cursor.execute(
             "INSERT INTO device_data (device_id, volume_ml, timestamp) VALUES (%s, %s, %s)",
-            (data.device_id, data.volume_ml, data.timestamp)
+            (data.device_id, data.volume_ml, timestamp_str)
         )
         conn.commit()
         cursor.close()
