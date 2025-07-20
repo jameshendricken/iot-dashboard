@@ -11,6 +11,7 @@ function App() {
   // console.log("App.js component loaded with user:", user, "and org:", org);
 
   const handleLogin = (email, organisation) => {
+    console.log("Handling login for user:", email, "with org:", organisation);
     localStorage.setItem("userEmail", email);
     localStorage.setItem("userOrg", organisation);
     setUser(email);
