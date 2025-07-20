@@ -20,7 +20,7 @@ export default function LoginRegisterPage({ onLogin }) {
       onLogin(userEmail, data.userOrg);
       navigate("/dashboard");
     }
-  }, [userEmail, navigate, onLogin]);
+  }, [userEmail, userOrg, navigate, onLogin]);
 
   const toggleMode = () => {
     setIsRegistering(!isRegistering);
