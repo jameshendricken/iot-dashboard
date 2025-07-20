@@ -29,7 +29,7 @@ export default function DeviceData() {
     fetch(`${API_URL}/devices`)
       .then((res) => res.json())
       .then((devices) => {
-        setDeviceIds(devices.map((d) => d.device_id));
+        setDeviceIds(devices);
         if (devices.length > 0) setSelectedDevice(devices[0].device_id);
       })
       .catch((err) => {
@@ -150,8 +150,9 @@ export default function DeviceData() {
             onChange={(e) => setSelectedDevice(e.target.value)}
             className="w-full border border-gray-300 rounded-md p-2"
           >
-            {deviceIds.map((id) => (
-              <option key={id} value={id}>{d.name}</option>
+            {deviceIds.map((d) => (
+            <option key={d.device_id} value={d.device_id}>
+              {d.device_name || d.device_id}</option>
             ))}
           </select>
         </div>
