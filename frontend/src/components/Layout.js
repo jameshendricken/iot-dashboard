@@ -8,7 +8,7 @@ export default function Layout({ userEmail, org, onLogout, children }) {
         <span className="text-sm text-gray-600">Organisation:  <strong>{orgName}</strong></span> */}
         <div>
           <p className="text-lg font-semibold">{userEmail}</p>
-          <p className="text-sm text-gray-500 italic">Org: {orgName}</p>
+          <p className="text-sm text-gray-500 italic">Org: {org}</p>
         </div>
         <button
         onClick={onLogout}
