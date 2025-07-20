@@ -42,7 +42,7 @@ function App() {
         <Route
           path="/admin/devices"
           element={
-            user && org === 1 ? (
+            user && org === "admin" ? (
               <Layout userEmail={user} orgName={org} onLogout={handleLogout}>
                 <AdminDevicesPage />
               </Layout>
