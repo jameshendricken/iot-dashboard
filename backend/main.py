@@ -309,7 +309,7 @@ def login_user(user: UserAuth):
     try:
         conn = get_connection()
         cursor = conn.cursor()
-        cursor.execute("SELECT id, password_hash, organisation_id FROM users WHERE email = %s", (user.email,))
+        cursor.execute("SELECT id, password_hash, organisation_id, roles_id FROM users WHERE email = %s", (user.email,))
         row = cursor.fetchone()
 
         # Step 1: Verify user credentials
@@ -318,7 +318,7 @@ def login_user(user: UserAuth):
             conn.close()
             raise HTTPException(status_code=401, detail="Invalid credentials")
         
-        user_id, _, org_id = row
+        user_id, _, org_id, role_id = row
 
         # Step 2: Get organisation name
         cursor.execute("SELECT name FROM organisations WHERE id = %s", (org_id,))
@@ -332,10 +332,23 @@ def login_user(user: UserAuth):
 
         org_name = org_row[0]
 
+        # Step 3: Get user roles
+        cursor.execute("SELECT name FROM roles WHERE id = %s", (role_id,))
+        role_row = cursor.fetchone()
+
+        cursor.close()
+        conn.close()
+
+        if not role_row:
+            raise HTTPException(status_code=404, detail="User Role not found")
+
+        role_name = role_row[0]
+
         # Step 3: Return required info
         return {
             "email": user.email,
-            "org": org_name  # this is what frontend will store
+            "org": org_name,  # this is what frontend will store
+            "role": role_name,  # this is what frontend will store
         }
 
         return {"message": "Login successful"}

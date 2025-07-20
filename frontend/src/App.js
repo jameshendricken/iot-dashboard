@@ -8,23 +8,29 @@ import Layout from "./components/Layout";
 function App() {
   const [user, setUser] = useState(localStorage.getItem("userEmail"));
   const [org, setOrg] = useState(localStorage.getItem("userOrg"));
+  const [role, setRole] = useState(localStorage.getItem("userRole"));
   // console.log("App.js component loaded with user:", user, "and org:", org);
 
-  const handleLogin = (email, organisation) => {
+  const handleLogin = (email, organisation, user_role) => {
     
     localStorage.setItem("userEmail", email);
     localStorage.setItem("userOrg", organisation);
+    localStorage.setItem("userRole", user_role);
     setUser(email);
     setOrg(organisation);
-    console.log("Handling login for user:", email, "with org:", organisation);
+    setRole(user_role);
+    console.log("Handling login for user:", email, "with org:", organisation, "and role:", user_role);
     
   };
 
   const handleLogout = () => {
     localStorage.removeItem("userEmail");
     localStorage.removeItem("userOrg");
+    localStorage.removeItem("userRole");
     setUser(null);
     setOrg(null);
+    setRole(null);
+    console.log("User logged out");
   };
 
   return (
@@ -46,7 +52,7 @@ function App() {
         <Route
           path="/admin/devices"
           element={
-            user && org === "admin" ? (
+            user && role === "admin" ? (
               <Layout userEmail={user} org={org} onLogout={handleLogout}>
                 <AdminDevicesPage />
               </Layout>
