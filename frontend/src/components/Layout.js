@@ -17,6 +17,12 @@ export default function Layout({ userEmail, org, onLogout, children }) {
             </Link>
           )}
         </div>
+        <Link
+              to="/dashboard"
+              className="mt-2 inline-block text-sm text-indigo-600 hover:underline"
+            >
+              Dashboard
+            </Link>
         <button
           onClick={onLogout}
           className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition"
