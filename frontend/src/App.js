@@ -16,32 +16,32 @@ function App() {
       <Routes>
         <Route path="/" element={<LoginRegisterPage onLogin={handleLogin} />} />
         <Route
-      path="/dashboard"
-      element={
-        user ? (
-          <Layout userEmail={user} onLogout={() => {
-            localStorage.removeItem("userEmail");
-            setUser(null);
-          }}>
-            <DeviceData />
-          </Layout>
-        ) : (
-          <Navigate to="/" replace />
-        )
-      }
-    />
-    <Route
-          path="/admin/devices"
+          path="/dashboard"
           element={
-            user && org === "admin" ? (
-              <Layout userEmail={user} onLogout={handleLogout}>
-                <Admin />
+            user ? (
+              <Layout userEmail={user} onLogout={() => {
+                localStorage.removeItem("userEmail");
+                setUser(null);
+              }}>
+                <DeviceData />
               </Layout>
             ) : (
               <Navigate to="/" replace />
             )
           }
         />
+        {/* <Route
+              path="/admin/devices"
+              element={
+                user && org === "admin" ? (
+                  <Layout userEmail={user} onLogout={handleLogout}>
+                    <Admin />
+                  </Layout>
+                ) : (
+                  <Navigate to="/" replace />
+                )
+              }
+          /> */}
       </Routes>
     </Router>
   );
