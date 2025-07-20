@@ -29,7 +29,7 @@ export default function DeviceData() {
     fetch(`${API_URL}/devices`)
       .then((res) => res.json())
       .then((devices) => {
-        setDeviceIds(devices.map((d) => d.device_id));
+        setDeviceIds(devices.map((d) => d.name));
         if (devices.length > 0) setSelectedDevice(devices[0].device_id);
       })
       .catch((err) => {
