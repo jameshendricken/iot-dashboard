@@ -23,7 +23,7 @@ export default function AdminDevicesPage() {
   };
 
   const handleSave = () => {
-    fetch(`https://iot-backend-p66k.onrender.com/admin/devices/${formData.device_id}`, {
+    fetch(`https://iot-backend-p66k.onrender.com/devices/${formData.device_id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(formData),
