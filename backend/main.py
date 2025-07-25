@@ -375,23 +375,26 @@ def update_device(device_id: str, payload: dict = Body(...)):
         conn = get_connection()
         cursor = conn.cursor()
 
+        allowed_keys = {"name", "organisation", "location", "status"}  # Adjust to your schema
         for key, value in payload.items():
-            if key != "device_id":
+            if key in allowed_keys:
                 cursor.execute(
                     f"UPDATE devices SET {key} = %s WHERE device_id = %s",
                     (value, device_id)
                 )
 
         conn.commit()
+
         cursor.execute("SELECT * FROM devices WHERE device_id = %s", (device_id,))
         updated = cursor.fetchone()
+        columns = [desc[0] for desc in cursor.description]
+
         cursor.close()
         conn.close()
 
         if not updated:
             raise HTTPException(status_code=404, detail="Device not found")
 
-        columns = [desc[0] for desc in cursor.description]
         return dict(zip(columns, updated))
 
     except Exception as e:
