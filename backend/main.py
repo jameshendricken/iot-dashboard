@@ -375,6 +375,8 @@ def update_device(device_id: str, payload: dict = Body(...)):
         conn = get_connection()
         cursor = conn.cursor()
 
+        print("Payload received:", payload)
+
         allowed_keys = {"name", "organisation", "location", "status"}  # Adjust to your schema
         for key, value in payload.items():
             if key in allowed_keys:
