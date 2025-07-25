@@ -349,23 +349,21 @@ def login_user(user: UserAuth):
             "org": org_name,  # this is what frontend will store
             "role": role_name,  # this is what frontend will store
         }
-
-        return {"message": "Login successful"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
     
-    @app.get("/organisations")
-    def get_organisations():
-        try:
-            conn = get_connection()
-            cursor = conn.cursor()
-            cursor.execute("SELECT id, name FROM organisations")
-            rows = cursor.fetchall()
-            cursor.close()
-            conn.close()
+@app.get("/organisations")
+def get_organisations():
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
+        cursor.execute("SELECT id, name FROM organisations")
+        rows = cursor.fetchall()
+        cursor.close()
+        conn.close()
 
-            organisations = [{"id": row[0], "name": row[1]} for row in rows]
-            return organisations
+        organisations = [{"id": row[0], "name": row[1]} for row in rows]
+        return organisations
 
-        except Exception as e: 
-            raise HTTPException(status_code=500, detail=str(e))
+    except Exception as e: 
+        raise HTTPException(status_code=500, detail=str(e))
