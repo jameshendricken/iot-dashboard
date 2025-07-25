@@ -22,7 +22,6 @@ export default function AdminDevicesPage() {
   const handleSelectDevice = (device) => {
     const enrichedDevice = {
       ...device,
-      device_name: device.device_name || "",
       organisation: device.organisation || "",
     };
     setSelectedDevice(enrichedDevice);
@@ -38,7 +37,7 @@ export default function AdminDevicesPage() {
   const validateForm = () => {
     const newErrors = {};
     Object.entries(formData).forEach(([key, value]) => {
-      if (key !== "device_id" && !value.trim()) {
+      if (key !== "device_id" && !value.toString().trim()) {
         newErrors[key] = "This field is required.";
       }
     });
@@ -79,7 +78,7 @@ export default function AdminDevicesPage() {
                 className="py-2 px-2 hover:bg-gray-100 cursor-pointer"
                 onClick={() => handleSelectDevice(device)}
               >
-                {device.device_name || device.device_id}
+                {device.name || device.device_id}
               </li>
             ))}
           </ul>
@@ -133,7 +132,7 @@ export default function AdminDevicesPage() {
                       <p className="text-red-500 text-sm mt-1">{errors[key]}</p>
                     )}
                   </div>
-                ))}
+                )).filter(([key]) => key !== "device_name")}
               </form>
               <div className="mt-4 flex gap-3">
                 <button
