@@ -89,50 +89,52 @@ export default function AdminDevicesPage() {
             <div className="bg-white rounded shadow p-4">
               <h3 className="font-semibold text-lg mb-4">Edit Device</h3>
               <form className="space-y-4">
-                {Object.entries(formData).map(([key, value]) => (
-                  <div key={key}>
-                    <label className="block font-medium capitalize mb-1">
-                      {key.replace("_", " ")}
-                    </label>
-                    {key === "organisation" ? (
-                      <select
-                        name="organisation"
-                        value={value}
-                        onChange={handleChange}
-                        className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 ${
-                          errors[key]
-                            ? "border-red-500 focus:ring-red-400"
-                            : "border-gray-300 focus:ring-indigo-500"
-                        }`}
-                      >
-                        <option value="">Select organisation</option>
-                        {organisations.map((org) => (
-                          <option key={org.id} value={org.name}>
-                            {org.name}
-                          </option>
-                        ))}
-                      </select>
-                    ) : (
-                      <input
-                        type="text"
-                        name={key}
-                        value={value}
-                        onChange={handleChange}
-                        disabled={key === "device_id"}
-                        className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 ${
-                          key === "device_id"
-                            ? "bg-gray-200 border-gray-300"
-                            : errors[key]
-                            ? "border-red-500 focus:ring-red-400"
-                            : "border-gray-300 focus:ring-indigo-500"
-                        }`}
-                      />
-                    )}
-                    {errors[key] && (
-                      <p className="text-red-500 text-sm mt-1">{errors[key]}</p>
-                    )}
-                  </div>
-                )).filter(([key]) => key !== "device_name")}
+                {Object.entries(formData)
+                  .filter(([key]) => key !== "device_name")
+                  .map(([key, value]) => (
+                    <div key={key}>
+                      <label className="block font-medium capitalize mb-1">
+                        {key.replace("_", " ")}
+                      </label>
+                      {key === "organisation" ? (
+                        <select
+                          name="organisation"
+                          value={value}
+                          onChange={handleChange}
+                          className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 ${
+                            errors[key]
+                              ? "border-red-500 focus:ring-red-400"
+                              : "border-gray-300 focus:ring-indigo-500"
+                          }`}
+                        >
+                          <option value="">Select organisation</option>
+                          {organisations.map((org) => (
+                            <option key={org.id} value={org.name}>
+                              {org.name}
+                            </option>
+                          ))}
+                        </select>
+                      ) : (
+                        <input
+                          type="text"
+                          name={key}
+                          value={value}
+                          onChange={handleChange}
+                          disabled={key === "device_id"}
+                          className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 ${
+                            key === "device_id"
+                              ? "bg-gray-200 border-gray-300"
+                              : errors[key]
+                              ? "border-red-500 focus:ring-red-400"
+                              : "border-gray-300 focus:ring-indigo-500"
+                          }`}
+                        />
+                      )}
+                      {errors[key] && (
+                        <p className="text-red-500 text-sm mt-1">{errors[key]}</p>
+                      )}
+                    </div>
+                  ))}
               </form>
               <div className="mt-4 flex gap-3">
                 <button
