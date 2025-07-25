@@ -6,6 +6,7 @@ export default function AdminDevicesPage() {
   const [formData, setFormData] = useState({});
   const [errors, setErrors] = useState({});
   const [organisations, setOrganisations] = useState([]);
+  const [editMode, setEditMode] = useState(false);
 
   useEffect(() => {
     fetch("https://iot-backend-p66k.onrender.com/devices")
@@ -27,6 +28,7 @@ export default function AdminDevicesPage() {
     setSelectedDevice(enrichedDevice);
     setFormData(enrichedDevice);
     setErrors({});
+    setEditMode(false);
   };
 
   const handleChange = (e) => {
@@ -61,8 +63,15 @@ export default function AdminDevicesPage() {
           )
         );
         alert("Device updated successfully.");
+        setEditMode(false);
       })
       .catch((err) => console.error("Update failed:", err));
+  };
+
+  const handleCancel = () => {
+    setFormData(selectedDevice);
+    setErrors({});
+    setEditMode(false);
   };
 
   return (
@@ -87,7 +96,7 @@ export default function AdminDevicesPage() {
         <div className="w-2/3">
           {selectedDevice && (
             <div className="bg-white rounded shadow p-4">
-              <h3 className="font-semibold text-lg mb-4">Edit Device</h3>
+              <h3 className="font-semibold text-lg mb-4">Device Details</h3>
               <form className="space-y-4">
                 {Object.entries(formData)
                   .filter(([key]) => key !== "device_name")
@@ -99,8 +108,9 @@ export default function AdminDevicesPage() {
                       {key === "organisation_id" ? (
                         <select
                           name="organisation_id"
-                          value={value}
+                          value={formData.organisation_id || ""}
                           onChange={handleChange}
+                          disabled={!editMode}
                           className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 ${
                             errors[key]
                               ? "border-red-500 focus:ring-red-400"
@@ -120,9 +130,9 @@ export default function AdminDevicesPage() {
                           name={key}
                           value={value}
                           onChange={handleChange}
-                          disabled={key === "device_id"}
+                          disabled={key === "device_id" || !editMode}
                           className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 ${
-                            key === "device_id"
+                            key === "device_id" || !editMode
                               ? "bg-gray-200 border-gray-300"
                               : errors[key]
                               ? "border-red-500 focus:ring-red-400"
@@ -137,12 +147,29 @@ export default function AdminDevicesPage() {
                   ))}
               </form>
               <div className="mt-4 flex gap-3">
-                <button
-                  onClick={handleSave}
-                  className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
-                >
-                  Save Changes
-                </button>
+                {editMode ? (
+                  <>
+                    <button
+                      onClick={handleSave}
+                      className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+                    >
+                      Save Changes
+                    </button>
+                    <button
+                      onClick={handleCancel}
+                      className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
+                    >
+                      Cancel
+                    </button>
+                  </>
+                ) : (
+                  <button
+                    onClick={() => setEditMode(true)}
+                    className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                  >
+                    Edit
+                  </button>
+                )}
               </div>
             </div>
           )}
