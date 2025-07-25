@@ -6,9 +6,9 @@ export default function AdminDevicesPage() {
   const [formData, setFormData] = useState({});
 
   useEffect(() => {
-    fetch("https://iot-backend-p66k.onrender.com/admin/devices")
+    fetch("https://iot-backend-p66k.onrender.com/devices")
       .then((res) => res.json())
-      .then((data) => setDevices(data))
+      .then((data) => setDevices(Array.isArray(data) ? data : []))
       .catch((err) => console.error("Error fetching devices:", err));
   }, []);
 
@@ -23,7 +23,7 @@ export default function AdminDevicesPage() {
   };
 
   const handleSave = () => {
-    fetch(`https://iot-backend-p66k.onrender.com/devices/${formData.device_id}`, {
+    fetch(`https://iot-backend-p66k.onrender.com/admin/devices/${formData.device_id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(formData),
