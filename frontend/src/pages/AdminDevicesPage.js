@@ -22,7 +22,7 @@ export default function AdminDevicesPage() {
   const handleSelectDevice = (device) => {
     const enrichedDevice = {
       ...device,
-      organisation: device.organisation || "",
+      organisation_id: device.organisation_id || "",
     };
     setSelectedDevice(enrichedDevice);
     setFormData(enrichedDevice);
@@ -96,9 +96,9 @@ export default function AdminDevicesPage() {
                       <label className="block font-medium capitalize mb-1">
                         {key.replace("_", " ")}
                       </label>
-                      {key === "organisation" ? (
+                      {key === "organisation_id" ? (
                         <select
-                          name="organisation"
+                          name="organisation_id"
                           value={value}
                           onChange={handleChange}
                           className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 ${
@@ -109,7 +109,7 @@ export default function AdminDevicesPage() {
                         >
                           <option value="">Select organisation</option>
                           {organisations.map((org) => (
-                            <option key={org.id} value={org.name}>
+                            <option key={org.id} value={org.id}>
                               {org.name}
                             </option>
                           ))}

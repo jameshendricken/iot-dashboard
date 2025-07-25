@@ -375,29 +375,27 @@ def update_device(device_id: str, payload: dict = Body(...)):
         conn = get_connection()
         cursor = conn.cursor()
 
-        print("Payload received:", payload)
+        # Only update known valid fields
+        allowed_keys = {"name", "organisation_id"}  # use organisation_id instead of organisation
 
-        allowed_keys = {"name", "organisation", "location", "status"}  # Adjust to your schema
         for key, value in payload.items():
             if key in allowed_keys:
-                cursor.execute(
-                    f"UPDATE devices SET {key} = %s WHERE device_id = %s",
-                    (value, device_id)
-                )
+                query = f"UPDATE devices SET {key} = %s WHERE device_id = %s"
+                cursor.execute(query, (value, device_id))
 
         conn.commit()
 
         cursor.execute("SELECT * FROM devices WHERE device_id = %s", (device_id,))
-        updated = cursor.fetchone()
-        columns = [desc[0] for desc in cursor.description]
+        row = cursor.fetchone()
 
+        if not row:
+            raise HTTPException(status_code=404, detail="Device not found")
+
+        columns = [desc[0] for desc in cursor.description]
         cursor.close()
         conn.close()
 
-        if not updated:
-            raise HTTPException(status_code=404, detail="Device not found")
-
-        return dict(zip(columns, updated))
+        return dict(zip(columns, row))
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
