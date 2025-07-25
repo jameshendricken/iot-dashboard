@@ -11,19 +11,21 @@ export default function Layout({ userEmail, org, role, onLogout, children }) {
           <p className="text-sm text-gray-500 italic">Role: {role}</p>
         </div>
         {role === "admin" && (
-            <Link
-              to="/admin/devices"
-              className="mt-2 inline-block text-sm text-indigo-600 hover:underline"
-            >
-              Admin Panel
-            </Link>
-          )}
+          <Link
+            to="/admin/devices"
+            className="mt-2 inline-block text-sm text-indigo-600 hover:underline"
+          >
+            Admin Panel
+          </Link>
+        )}
+
         <Link
-              to="/dashboard"
-              className="mt-2 inline-block text-sm text-indigo-600 hover:underline"
-            >
-              Dashboard
-            </Link>
+            to="/dashboard"
+            className="mt-2 inline-block text-sm text-indigo-600 hover:underline"
+          >
+            Dashboard
+        </Link>
+        
         <button
           onClick={onLogout}
           className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition"
