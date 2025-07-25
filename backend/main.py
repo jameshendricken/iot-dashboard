@@ -1,6 +1,7 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from fastapi import Body
 from pydantic import BaseModel
 from datetime import datetime
 import psycopg2
@@ -367,3 +368,32 @@ def get_organisations():
 
     except Exception as e: 
         raise HTTPException(status_code=500, detail=str(e))
+    
+@app.put("/devices/{device_id}")
+def update_device(device_id: str, payload: dict = Body(...)):
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
+
+        for key, value in payload.items():
+            if key != "device_id":
+                cursor.execute(
+                    f"UPDATE devices SET {key} = %s WHERE device_id = %s",
+                    (value, device_id)
+                )
+
+        conn.commit()
+        cursor.execute("SELECT * FROM devices WHERE device_id = %s", (device_id,))
+        updated = cursor.fetchone()
+        cursor.close()
+        conn.close()
+
+        if not updated:
+            raise HTTPException(status_code=404, detail="Device not found")
+
+        columns = [desc[0] for desc in cursor.description]
+        return dict(zip(columns, updated))
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
