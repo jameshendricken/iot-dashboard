@@ -4,17 +4,30 @@ export default function AdminDevicesPage() {
   const [devices, setDevices] = useState([]);
   const [selectedDevice, setSelectedDevice] = useState(null);
   const [formData, setFormData] = useState({});
+  const [errors, setErrors] = useState({});
+  const [organisations, setOrganisations] = useState([]);
 
   useEffect(() => {
     fetch("https://iot-backend-p66k.onrender.com/devices")
       .then((res) => res.json())
       .then((data) => setDevices(Array.isArray(data) ? data : []))
       .catch((err) => console.error("Error fetching devices:", err));
+
+    fetch("https://iot-backend-p66k.onrender.com/organisations")
+      .then((res) => res.json())
+      .then((data) => setOrganisations(Array.isArray(data) ? data : []))
+      .catch((err) => console.error("Error fetching organisations:", err));
   }, []);
 
   const handleSelectDevice = (device) => {
-    setSelectedDevice(device);
-    setFormData(device);
+    const enrichedDevice = {
+      ...device,
+      device_name: device.device_name || "",
+      organisation: device.organisation || "",
+    };
+    setSelectedDevice(enrichedDevice);
+    setFormData(enrichedDevice);
+    setErrors({});
   };
 
   const handleChange = (e) => {
@@ -22,8 +35,21 @@ export default function AdminDevicesPage() {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  const validateForm = () => {
+    const newErrors = {};
+    Object.entries(formData).forEach(([key, value]) => {
+      if (key !== "device_id" && !value.trim()) {
+        newErrors[key] = "This field is required.";
+      }
+    });
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleSave = () => {
-    fetch(`https://iot-backend-p66k.onrender.com/admin/devices/${formData.device_id}`, {
+    if (!validateForm()) return;
+
+    fetch(`https://iot-backend-p66k.onrender.com/devices/${formData.device_id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(formData),
@@ -69,14 +95,43 @@ export default function AdminDevicesPage() {
                     <label className="block font-medium capitalize mb-1">
                       {key.replace("_", " ")}
                     </label>
-                    <input
-                      type="text"
-                      name={key}
-                      value={value}
-                      onChange={handleChange}
-                      disabled={key === "device_id"}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:bg-gray-200"
-                    />
+                    {key === "organisation" ? (
+                      <select
+                        name="organisation"
+                        value={value}
+                        onChange={handleChange}
+                        className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 ${
+                          errors[key]
+                            ? "border-red-500 focus:ring-red-400"
+                            : "border-gray-300 focus:ring-indigo-500"
+                        }`}
+                      >
+                        <option value="">Select organisation</option>
+                        {organisations.map((org) => (
+                          <option key={org.id} value={org.name}>
+                            {org.name}
+                          </option>
+                        ))}
+                      </select>
+                    ) : (
+                      <input
+                        type="text"
+                        name={key}
+                        value={value}
+                        onChange={handleChange}
+                        disabled={key === "device_id"}
+                        className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 ${
+                          key === "device_id"
+                            ? "bg-gray-200 border-gray-300"
+                            : errors[key]
+                            ? "border-red-500 focus:ring-red-400"
+                            : "border-gray-300 focus:ring-indigo-500"
+                        }`}
+                      />
+                    )}
+                    {errors[key] && (
+                      <p className="text-red-500 text-sm mt-1">{errors[key]}</p>
+                    )}
                   </div>
                 ))}
               </form>
