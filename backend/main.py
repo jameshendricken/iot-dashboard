@@ -102,7 +102,7 @@ def get_devices():
     try:
         conn = get_connection()
         cursor = conn.cursor()
-        cursor.execute("SELECT device_id, name FROM devices")
+        cursor.execute("SELECT device_id, name, organisation_id FROM devices")
         rows = cursor.fetchall()
         cursor.close()
         conn.close()
@@ -110,7 +110,7 @@ def get_devices():
         if not rows:
             raise HTTPException(status_code=404, detail="No devices found")
 
-        return [{"device_id": row[0], "name": row[1]} for row in rows]
+        return [{"device_id": row[0], "name": row[1], "organisation_id": row[2]} for row in rows]
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
