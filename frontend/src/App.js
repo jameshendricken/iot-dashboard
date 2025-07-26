@@ -38,12 +38,12 @@ function App() {
   return (
     <Router>
       <Navbar userEmail={user} org={org} role={role} />
-      <Switch>
+      <Routes>
         <Route path="/" element={<LoginRegisterPage onLogin={handleLogin} />} />
         <Route path="/dashboard" element={<DeviceData />} />
         <Route path="/admin/devices" element={<AdminDevicesPage />} />
         <Route path="/admin/users" element={<AdminUsersPage />} />
-      </Switch>
+      </Routes>
 
       
     </Router>
