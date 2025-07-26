@@ -23,7 +23,7 @@ export default function AdminDevicesPage() {
   const handleSelectDevice = (device) => {
     const enrichedDevice = {
       ...device,
-      organisation_id: device.organisation_id || "",
+      organisation_id: device.organisation_id ? String(device.organisation_id) : "",
     };
     setSelectedDevice(enrichedDevice);
     setFormData(enrichedDevice);
@@ -121,7 +121,7 @@ export default function AdminDevicesPage() {
                             {editMode ? "Select organisation" : "Not assigned"}
                           </option>
                           {organisations.map((org) => (
-                            <option key={org.id} value={org.id}>
+                            <option key={org.id} value={String(org.id)}>
                               {org.name}
                             </option>
                           ))}

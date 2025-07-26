@@ -385,6 +385,7 @@ def update_device(device_id: str, payload: dict = Body(...)):
 
         conn.commit()
 
+#       This is where the eror was happening when trying to update a device and reselcting the device returns all values associated with the device_id
         cursor.execute("SELECT * FROM devices WHERE device_id = %s", (device_id,))
         row = cursor.fetchone()
 
