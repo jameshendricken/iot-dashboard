@@ -29,6 +29,7 @@ export default function DeviceData() {
     fetch(`${API_URL}/devices`)
       .then((res) => res.json())
       .then((devices) => {
+        console.log("Fetched devices:", devices);
         const allDevicesOption = [{ device_id: "ALL", name: "All Devices" }, ...devices];
         setDeviceIds(allDevicesOption);
         if (devices.length > 0) setSelectedDevice("ALL");
