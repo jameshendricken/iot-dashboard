@@ -253,6 +253,22 @@ export default function DeviceData() {
         <p className="text-center text-gray-500">No data available for this device.</p>
       ) : (
         <>
+          <div className="h-80 bg-white rounded shadow p-4">
+            {histogramData.length === 0 ? (
+              <p className="text-gray-500 italic text-center">No usage data to display for this period.</p>
+            ) : (
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={histogramData} margin={{ top: 20, right: 30, left: 0, bottom: 5 }}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="timestamp" tickFormatter={(tick) => tick.split("T")[0]} />
+                  <YAxis />
+                  <Tooltip />
+                  <Bar dataKey="total_volume" fill="#4F46E5" radius={[4, 4, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            )}
+          </div>
+
           <table className="min-w-full divide-y divide-gray-200 shadow rounded overflow-hidden mb-6">
             <thead className="bg-gray-100">
               <tr>
@@ -273,21 +289,7 @@ export default function DeviceData() {
             </tbody>
           </table>
 
-          <div className="h-80 bg-white rounded shadow p-4">
-            {histogramData.length === 0 ? (
-              <p className="text-gray-500 italic text-center">No usage data to display for this period.</p>
-            ) : (
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={histogramData} margin={{ top: 20, right: 30, left: 0, bottom: 5 }}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="timestamp" tickFormatter={(tick) => tick.split("T")[0]} />
-                  <YAxis />
-                  <Tooltip />
-                  <Bar dataKey="total_volume" fill="#4F46E5" radius={[4, 4, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
-            )}
-          </div>
+          
         </>
       )}
     </div>
