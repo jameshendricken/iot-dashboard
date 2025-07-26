@@ -69,7 +69,9 @@ export default function DeviceData() {
         let combinedHistogram = {};
         let total = 0;
 
-        for (let [[dRes, sRes, hRes]] of allData) {
+        for (let responses of allData) {
+          const [dRes, sRes, hRes] = responses;
+
           const d = await dRes.json();
           const s = await sRes.json();
           const h = await hRes.json();
