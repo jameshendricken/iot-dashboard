@@ -17,7 +17,7 @@ export function Button() {
       <button className="btn" onClick={handleLogout}>
         Sign Out
       </button>
-      <Navigate to="/" replace />
+      {/* <Navigate to="/" replace /> */}
     </>
   );
 }
