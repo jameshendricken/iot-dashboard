@@ -74,6 +74,10 @@ export default function AdminDevicesPage() {
     setEditMode(false);
   };
 
+  const selectedOrg = organisations.find(org => String(org.id) === formData.organisation_id);
+  const organisationName = selectedOrg ? selectedOrg.name : "Not assigned";
+  console.log("Selected Organisation:", organisationName);
+
   return (
     <div className="p-4">
       <h2 className="text-xl font-bold mb-4">Admin Devices Page</h2>
