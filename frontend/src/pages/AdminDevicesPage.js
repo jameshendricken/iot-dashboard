@@ -117,7 +117,9 @@ export default function AdminDevicesPage() {
                               : "border-gray-300 focus:ring-indigo-500"
                           }`}
                         >
-                          <option value="">Select organisation</option>
+                          <option value="">
+                            {editMode ? "Select organisation" : "Not assigned"}
+                          </option>
                           {organisations.map((org) => (
                             <option key={org.id} value={org.id}>
                               {org.name}
