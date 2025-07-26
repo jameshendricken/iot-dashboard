@@ -106,26 +106,40 @@ export default function AdminDevicesPage() {
                         {key.replace("_", " ")}
                       </label>
                       {key === "organisation_id" ? (
-                        <select
-                          name="organisation_id"
-                          value={formData.organisation_id || ""}
-                          onChange={handleChange}
-                          disabled={!editMode}
-                          className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 ${
-                            errors[key]
-                              ? "border-red-500 focus:ring-red-400"
-                              : "border-gray-300 focus:ring-indigo-500"
-                          }`}
-                        >
-                          <option value="">
-                            {editMode ? "Select organisation" : "Not assigned"}
-                          </option>
-                          {organisations.map((org) => (
-                            <option key={org.id} value={String(org.id)}>
-                              {org.name}
+                        editMode ? (
+                          <select
+                            name="organisation_id"
+                            value={formData.organisation_id || ""}
+                            onChange={handleChange}
+                            disabled={!editMode}
+                            className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 ${
+                              errors[key]
+                                ? "border-red-500 focus:ring-red-400"
+                                : "border-gray-300 focus:ring-indigo-500"
+                            }`}
+                          >
+                            <option value="">
+                              {editMode ? "Select organisation" : "Not assigned"}
                             </option>
-                          ))}
-                        </select>
+                            {organisations.map((org) => (
+                              <option key={org.id} value={String(org.id)}>
+                                {org.name}
+                              </option>
+                            ))}
+                          </select>
+                        ) : (
+                          <input
+                            type="text"
+                            name="organisation_id"
+                            value={
+                              organisations.find(
+                                (org) => String(org.id) === String(formData.organisation_id)
+                              )?.name || "Not assigned"
+                            }
+                            disabled
+                            className="w-full px-3 py-2 border rounded-md bg-gray-200 border-gray-300"
+                          />
+                        )
                       ) : (
                         <input
                           type="text"
