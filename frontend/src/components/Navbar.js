@@ -4,7 +4,7 @@ import { Button, button }  from './Button';
 import './Navbar.css';
 import Dropdown from './Dropdown';
 
-function Navbar({ userEmail, org, role, onLogout }) {
+function Navbar({ userEmail, org, role }) {
     const[click, setClick] = React.useState(false);
     const [dropdown, setDropdown] = React.useState(false);
     const handleClick = () => {
@@ -29,6 +29,15 @@ function Navbar({ userEmail, org, role, onLogout }) {
             setDropdown(false);
         }
     }
+    const handleLogout = () => {
+    localStorage.removeItem("userEmail");
+    localStorage.removeItem("userOrg");
+    localStorage.removeItem("userRole");
+    // setUser(null);
+    // setOrg(null);
+    // setRole(null);
+    console.log("User logged out");
+  };
 
 
     
@@ -69,7 +78,7 @@ function Navbar({ userEmail, org, role, onLogout }) {
                 
             </ul>
 
-            <Button />
+            <Button onClick={handleLogout}/>
             
 
             {/* button working fine */}

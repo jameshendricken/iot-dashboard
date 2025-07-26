@@ -37,7 +37,23 @@ function App() {
 
   return (
     <Router>
-      <Routes>
+      <Navbar userEmail={user} org={org} role={role} />
+      <Switch>
+        <Route path="/" element={<LoginRegisterPage onLogin={handleLogin} />} />
+        <Route path="/dashboard" element={<DeviceData />} />
+        <Route path="/admin/devices" element={<AdminDevicesPage />} />
+        <Route path="/admin/users" element={<AdminUsersPage />} />
+      </Switch>
+
+      
+    </Router>
+  );
+}
+
+
+export default App;
+
+{/* <Routes>
         <Route path="/" element={<LoginRegisterPage onLogin={handleLogin} />} />
         <Route
           path="/dashboard"
@@ -46,8 +62,7 @@ function App() {
               <Navbar
                 userEmail={user}
                 org={org}
-                role={role}
-                onLogout={handleLogout}>
+                role={role}>
                 <DeviceData />
               </Navbar>
 
@@ -63,7 +78,7 @@ function App() {
           path="/admin/devices"
           element={
             user && role === "admin" ? (
-              <Navbar userEmail={user} org={org} role={role} onLogout={handleLogout}>
+              <Navbar userEmail={user} org={org} role={role}>
                 <AdminDevicesPage />
               </Navbar>
             ) : (
@@ -75,7 +90,7 @@ function App() {
           path="/admin/users"
           element={
             user && role === "admin" ? (
-              <Navbar userEmail={user} org={org} role={role} onLogout={handleLogout}>
+              <Navbar userEmail={user} org={org} role={role}>
                 <AdminUsersPage />
               </Navbar>
             ) : (
@@ -83,10 +98,4 @@ function App() {
             )
           }
         />
-      </Routes>
-    </Router>
-  );
-}
-
-
-export default App;
+      </Routes> */}
