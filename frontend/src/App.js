@@ -3,7 +3,9 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-d
 import LoginRegisterPage from "./LoginRegisterPage";
 import DeviceData from "./DeviceData";
 import AdminDevicesPage from "./pages/AdminDevicesPage";
+import AdminUsersPage from "./pages/AdminUsersPage";
 import Layout from "./components/Layout";
+import Navbar from "./components/Navbar";
 
 function App() {
   const [user, setUser] = useState(localStorage.getItem("userEmail"));
@@ -41,9 +43,17 @@ function App() {
           path="/dashboard"
           element={
             user ? (
-              <Layout userEmail={user} org={org} role={role} onLogout={handleLogout}>
+              <Navbar
+                userEmail={user}
+                org={org}
+                role={role}
+                onLogout={handleLogout}>
                 <DeviceData />
-              </Layout>
+              </Navbar>
+
+              // <Layout userEmail={user} org={org} role={role} onLogout={handleLogout}>
+              //   <DeviceData />
+              // </Layout>
             ) : (
               <Navigate to="/" replace />
             )
@@ -53,9 +63,21 @@ function App() {
           path="/admin/devices"
           element={
             user && role === "admin" ? (
-              <Layout userEmail={user} org={org} role={role} onLogout={handleLogout}>
+              <Navbar userEmail={user} org={org} role={role} onLogout={handleLogout}>
                 <AdminDevicesPage />
-              </Layout>
+              </Navbar>
+            ) : (
+              <Navigate to="/" replace />
+            )
+          }
+        />
+        <Route
+          path="/admin/users"
+          element={
+            user && role === "admin" ? (
+              <Navbar userEmail={user} org={org} role={role} onLogout={handleLogout}>
+                <AdminUsersPage />
+              </Navbar>
             ) : (
               <Navigate to="/" replace />
             )

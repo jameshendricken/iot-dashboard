@@ -401,3 +401,67 @@ def update_device(device_id: str, payload: dict = Body(...)):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+@app.get("/users")
+def get_users():
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
+        cursor.execute("SELECT id, email, organisation_id, roles_id FROM users")
+        rows = cursor.fetchall()
+        cursor.close()
+        conn.close()
+
+        if not rows:
+            raise HTTPException(status_code=404, detail="No users found")
+
+        return [{"id": row[0], "email": row[1], "organisation_id": row[2], "roles_id": row[3]} for row in rows]
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    
+@app.get("/users/{user_id}")
+def get_user(user_id: int):
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
+        cursor.execute("SELECT id, email, organisation_id, roles_id FROM users WHERE id = %s", (user_id,))
+        row = cursor.fetchone()
+        cursor.close()
+        conn.close()
+
+        if not row:
+            raise HTTPException(status_code=404, detail="User not found")
+
+        return {"id": row[0], "email": row[1], "organisation_id": row[2], "roles_id": row[3]}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    
+@app.put("/users/{user_id}")
+def update_user(user_id: int, payload: dict = Body(...)):
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
+
+        # Only update known valid fields
+        allowed_keys = {"email", "organisation_id", "roles_id"}
+
+        for key, value in payload.items():
+            if key in allowed_keys:
+                query = f"UPDATE users SET {key} = %s WHERE id = %s"
+                cursor.execute(query, (value, user_id))
+
+        conn.commit()
+
+        cursor.execute("SELECT id, email, organisation_id, roles_id FROM users WHERE id = %s", (user_id,))
+        row = cursor.fetchone()
+
+        if not row:
+            raise HTTPException(status_code=404, detail="User not found")
+
+        columns = [desc[0] for desc in cursor.description]
+        cursor.close()
+        conn.close()
+
+        return dict(zip(columns, row))
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
