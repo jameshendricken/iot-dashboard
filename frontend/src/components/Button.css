@@ -1,0 +1,27 @@
+:root {
+    --primary-color: #1888ff; /* Green */
+    --secondary-color: #f1f1f1; /* Light Gray */
+    --text-color: #333; /* Dark Gray */
+    --button-hover-color: #45a049; /* Darker Green */
+}
+
+.btn {
+    background-color: var(--primary-color);
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    outline: none;
+
+}
+
+.btn:hover {
+    background-color: var(--button-hover-color);
+    padding: 10px 22px;
+    transition: background-color 0.3s ease, padding 0.3s ease;
+    border-radius: 5px;
+    border: 2px solid var(--primary-color);
+    color: white;
+}
