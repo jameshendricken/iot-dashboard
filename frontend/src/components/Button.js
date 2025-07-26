@@ -12,12 +12,17 @@ export function Button() {
     // setRole(null);
     console.log("User logged out");
   };
-  return (
+return (
     <>
-      <button className="btn" onClick={handleLogout}>
-        Sign Out
-      </button>
-      {/* <Navigate to="/" replace /> */}
+        <button
+            className="btn"
+            onClick={() => {
+                handleLogout();
+                window.location.href = "/";
+            }}
+        >
+            Sign Out
+        </button>
     </>
-  );
+);
 }
