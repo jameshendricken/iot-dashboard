@@ -21,34 +21,23 @@ export default function DeviceData() {
   const [customStart, setCustomStart] = useState(new Date("2020-01-01"));
   const [customEnd, setCustomEnd] = useState(new Date("2099-12-31"));
 
-  const bottlesSaved = (totalVolume/1000) * 2; // Assuming 500ml bottles, so 2 bottles per liter
-  const plasticSaved = bottlesSaved * 0.02; // Assuming 20g of plastic per 500ml bottle
-  const socialCost = plasticSaved * 0.022; // Assuming €0.022 per gram of plastic saved
+  const bottlesSaved = (totalVolume/1000) * 2;
+  const plasticSaved = bottlesSaved * 0.02;
+  const socialCost = plasticSaved * 0.022;
 
   useEffect(() => {
     fetch(`${API_URL}/devices`)
       .then((res) => res.json())
       .then((devices) => {
-        setDeviceIds(devices);
-        if (devices.length > 0) setSelectedDevice(devices[0].device_id);
+        const allDevicesOption = [{ device_id: "ALL", name: "All Devices" }, ...devices];
+        setDeviceIds(allDevicesOption);
+        if (devices.length > 0) setSelectedDevice("ALL");
       })
       .catch((err) => {
         console.error("Error fetching devices:", err);
         setError("Failed to fetch device list.");
       });
   }, []);
-
-  const fetchAllUsers = async () => {
-    try {
-      const res = await fetch(`${API_URL}/users`);
-      if (!res.ok) throw new Error("Failed to fetch users");
-      const users = await res.json();
-      return users;
-    } catch (err) {
-      console.error("Error fetching users:", err);
-      return [];
-    }
-  };
 
   useEffect(() => {
     if (!selectedDevice) return;
@@ -58,37 +47,49 @@ export default function DeviceData() {
     setLoading(true);
     setError("");
 
+    const startParam = dateRange === "custom" ? customStart.toISOString() : start.toISOString();
+    const endParam = dateRange === "custom" ? customEnd.toISOString() : end.toISOString();
+
     const fetchData = async () => {
       try {
-        const startParam = dateRange === "custom" ? customStart.toISOString() : start.toISOString();
-        const endParam = dateRange === "custom" ? customEnd.toISOString() : end.toISOString();
+        let deviceList = selectedDevice === "ALL" ? deviceIds.filter(d => d.device_id !== "ALL").map(d => d.device_id) : [selectedDevice];
 
-        const [dataRes, summaryRes, histogramRes] = await Promise.all([
-          fetch(`${API_URL}/data/${selectedDevice}?start=${startParam}&end=${endParam}`),
-          fetch(`${API_URL}/data/${selectedDevice}/summary?start=${startParam}&end=${endParam}`),
-          fetch(`${API_URL}/data/${selectedDevice}/histogram?start=${startParam}&end=${endParam}&interval=day`)
-        ]);
+        const allData = await Promise.all(
+          deviceList.map((deviceId) =>
+            Promise.all([
+              fetch(`${API_URL}/data/${deviceId}?start=${startParam}&end=${endParam}`),
+              fetch(`${API_URL}/data/${deviceId}/summary?start=${startParam}&end=${endParam}`),
+              fetch(`${API_URL}/data/${deviceId}/histogram?start=${startParam}&end=${endParam}&interval=day`)
+            ])
+          )
+        );
 
-        const dataJson = await dataRes.json();
-        const summaryJson = await summaryRes.json();
-        const histogramJson = await histogramRes.json();
+        let combinedData = [];
+        let combinedHistogram = {};
+        let total = 0;
 
-        if (Array.isArray(dataJson)) {
-          setData(dataJson);
-        } else {
-          console.error("Expected array but got:", dataJson);
-          setData([]);
-          setError("Unexpected data format received.");
+        for (let [[dRes, sRes, hRes]] of allData) {
+          const d = await dRes.json();
+          const s = await sRes.json();
+          const h = await hRes.json();
+
+          if (Array.isArray(d)) combinedData.push(...d);
+          if (s.total_volume) total += s.total_volume;
+          if (Array.isArray(h)) {
+            h.forEach(({ timestamp, total_volume }) => {
+              if (!combinedHistogram[timestamp]) combinedHistogram[timestamp] = 0;
+              combinedHistogram[timestamp] += Number(total_volume);
+            });
+          }
         }
 
-        setTotalVolume(summaryJson.total_volume || 0);
+        setData(combinedData);
+        setTotalVolume(total);
         setHistogramData(
-          Array.isArray(histogramJson)
-            ? histogramJson.map((entry) => ({
-                timestamp: entry.timestamp,
-                total_volume: Number(entry.total_volume),
-              }))
-            : []
+          Object.entries(combinedHistogram).map(([timestamp, total_volume]) => ({
+            timestamp,
+            total_volume,
+          }))
         );
         setLoading(false);
       } catch (err) {
@@ -99,25 +100,20 @@ export default function DeviceData() {
     };
 
     fetchData();
-  }, [selectedDevice, dateRange, customStart, customEnd]);
+  }, [selectedDevice, dateRange, customStart, customEnd, deviceIds]);
 
   const getDateRange = (range) => {
     const today = startOfToday();
     switch (range) {
-      case "today":
-        return { start: today, end: new Date() };
-      case "thisWeek":
-        return { start: startOfWeek(today, { weekStartsOn: 1 }), end: new Date() };
-      case "thisMonth":
-        return { start: startOfMonth(today), end: new Date() };
+      case "today": return { start: today, end: new Date() };
+      case "thisWeek": return { start: startOfWeek(today, { weekStartsOn: 1 }), end: new Date() };
+      case "thisMonth": return { start: startOfMonth(today), end: new Date() };
       case "lastMonth":
         const lastMonthStart = startOfMonth(subMonths(today, 1));
         return { start: lastMonthStart, end: endOfMonth(lastMonthStart) };
-      case "custom":
-        return { start: customStart, end: customEnd };
+      case "custom": return { start: customStart, end: customEnd };
       case "all":
-      default:
-        return { start: new Date("2020-01-01"), end: new Date("2099-12-31") };
+      default: return { start: new Date("2020-01-01"), end: new Date("2099-12-31") };
     }
   };
 
@@ -136,7 +132,27 @@ export default function DeviceData() {
   };
 
   return (
+    
     <div className="p-4 max-w-4xl mx-auto bg-gray-50 rounded-lg shadow-lg">
+
+      <div className="flex gap-4 items-center">
+        <label htmlFor="device-select" className="font-medium">Select Device:</label>
+        <select
+          id="device-select"
+          value={selectedDevice}
+          onChange={(e) => setSelectedDevice(e.target.value)}
+          className="px-3 py-2 border rounded-md shadow-sm"
+        >
+          {deviceIds.map((device) => (
+            <option key={device.device_id} value={device.device_id}>
+              {device.name || device.device_id}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      {/* You can continue rendering totalVolume, bottlesSaved, charts, etc. here */}
+
       <h2 className="text-3xl font-bold text-center mb-6 text-gray-700">Device Data Dashboard</h2>
 
       <div className="grid sm:grid-cols-2 gap-6 mb-6">
@@ -198,21 +214,6 @@ export default function DeviceData() {
         </div>
       )}
 
-      {/* <div className="flex justify-between items-center mb-6">
-        <div className="bg-white shadow rounded p-4 w-full text-center">
-          <p className="text-gray-500 text-sm">Total Volume Dispensed</p>
-          <p className="text-2xl font-bold text-green-600">{totalVolume} mL</p>
-        </div>
-        <button
-          onClick={downloadCSV}
-          className="ml-4 bg-green-500 hover:bg-green-600 text-white font-medium px-4 py-2 rounded shadow"
-        >
-          ⬇ Download CSV
-        </button>
-      </div> */}
-
-        {/* Edited from Chatgpt */}
-
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
         <div className="bg-white shadow rounded p-4 text-center">
           <p className="text-gray-500 text-sm">Total Volume Dispensed</p>
@@ -240,8 +241,6 @@ export default function DeviceData() {
           ⬇ Download CSV
         </button>
       </div>
-
-        {/* End edited from Chatgpt */}
 
       {error && <p className="text-red-500 text-center mb-4">{error}</p>}
 
