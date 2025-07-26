@@ -14,6 +14,25 @@ function Navbar({ userEmail, org, role, onLogout }) {
         setClick(false);
     };
 
+    const onMouseEnter = () => {
+        if (window.innerWidth < 960) {
+            setDropdown(false);
+        } else {
+            setDropdown(true);
+        }
+    }
+
+    const onMouseLeave = () => {
+        if (window.innerWidth < 960) {
+            setDropdown(false);
+        } else {
+            setDropdown(false);
+        }
+    }
+
+
+    
+
 
 
   return (
@@ -25,11 +44,11 @@ function Navbar({ userEmail, org, role, onLogout }) {
             <div className="menu-icon" onClick={handleClick}>
                 <i className={click ? 'fas fa-times' : 'fas fa-bars'} />
             </div>
-            <div className="navbar-user-info">
+            {/* <div className="navbar-user-info">
                 <span className="navbar-user-email">{userEmail}</span>
                 <span className="navbar-user-org">Org: {org}</span>
                 <span className="navbar-user-role">Role: {role}</span>
-            </div>
+            </div> */}
             <div>
                 <ul className={click ? 'navbar-menu active' : 'navbar-menu'}>
                     <li className="navbar-item">
@@ -39,8 +58,8 @@ function Navbar({ userEmail, org, role, onLogout }) {
                     </li>
                     {role === 'admin' && (
                         <>
-                            <li className="navbar-item">
-                                <Link to="/admin/devices" className="navbar-links" onClick={closeMobileMenu}>
+                            <li className="navbar-item" onMouseEnter={onMouseEnter} onMouseLeave={onMouseLeave} >
+                                <Link to="/admin" className="navbar-links" onClick={closeMobileMenu}>
                                     Admin <i className="fas fa-caret-down" />
                                 </Link>
                                 {dropdown && <Dropdown />}
