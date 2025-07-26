@@ -1,6 +1,6 @@
 import React from 'react'
 import { Link } from 'react-router-dom';
-import { button }  from './Button';
+import { Button, button }  from './Button';
 import './Navbar.css';
 import Dropdown from './Dropdown';
 
@@ -38,8 +38,8 @@ function Navbar({ userEmail, org, role, onLogout }) {
   return (
     <>
         <nav className="navbar">
-            <Link to="/" className="navbar-logo">
-                IoT Dashboard
+            <Link to="/" className="navbar-logo" onClick={closeMobileMenu}>
+                IoT Dashboard <i class='fab fa-firstdraft' />
             </Link>
             <div className="menu-icon" onClick={handleClick}>
                 <i className={click ? 'fas fa-times' : 'fas fa-bars'} />
@@ -49,26 +49,28 @@ function Navbar({ userEmail, org, role, onLogout }) {
                 <span className="navbar-user-org">Org: {org}</span>
                 <span className="navbar-user-role">Role: {role}</span>
             </div> */}
-            <div>
-                <ul className={click ? 'navbar-menu active' : 'navbar-menu'}>
-                    <li className="navbar-item">
-                        <Link to="/dashboard" className="navbar-links" onClick={closeMobileMenu}>
-                            Dashboard
-                        </Link>
-                    </li>
-                    {role === 'admin' && (
-                        <>
-                            <li className="navbar-item" onMouseEnter={onMouseEnter} onMouseLeave={onMouseLeave} >
-                                <Link to="/admin" className="navbar-links" onClick={closeMobileMenu}>
-                                    Admin <i className="fas fa-caret-down" />
-                                </Link>
-                                {dropdown && <Dropdown />}
-                            </li>
-                        </>
-                    )}
-                    
-                </ul>
-            </div>
+            
+            <ul className={click ? 'nav-menu active' : 'nav-menu'}>
+                <li className="nav-item">
+                    <Link to="/dashboard" className="nav-links" onClick={closeMobileMenu}>
+                        Dashboard
+                    </Link>
+                </li>
+                {role === 'admin' && (
+                    <>
+                        <li className="nav-item" onMouseEnter={onMouseEnter} onMouseLeave={onMouseLeave} >
+                            <Link to="/admin" className="nav-links" onClick={closeMobileMenu}>
+                                Admin <i className="fas fa-caret-down" />
+                            </Link>
+                            {dropdown && <Dropdown />}
+                        </li>
+                    </>
+                )}
+                
+            </ul>
+
+            <Button />
+            
 
             {/* button working fine */}
             <button onClick={onLogout} className="navbar-logout-button">
