@@ -81,7 +81,7 @@ function Navbar({ userEmail, org, role }) {
             <Button onClick={handleLogout}/>
             
 
-            {/* button working fine */}
+            button working fine
             <button onClick={onLogout} className="navbar-logout-button">
                         Logout
             </button>
