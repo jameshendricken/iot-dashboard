@@ -135,7 +135,7 @@ export default function DeviceData() {
     
     <div className="p-4 max-w-4xl mx-auto bg-gray-50 rounded-lg shadow-lg">
 
-      <div className="flex gap-4 items-center">
+      {/* <div className="flex gap-4 items-center">
         <label htmlFor="device-select" className="font-medium">Select Device:</label>
         <select
           id="device-select"
@@ -149,7 +149,7 @@ export default function DeviceData() {
             </option>
           ))}
         </select>
-      </div>
+      </div> */}
 
       {/* You can continue rendering totalVolume, bottlesSaved, charts, etc. here */}
 
