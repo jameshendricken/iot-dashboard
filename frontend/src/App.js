@@ -25,56 +25,14 @@ function App() {
     
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem("userEmail");
-    localStorage.removeItem("userOrg");
-    localStorage.removeItem("userRole");
-    setUser(null);
-    setOrg(null);
-    setRole(null);
-    console.log("User logged out");
-  };
-
   return (
     <Router>
+      <Navbar userEmail={user} org={org} role={role} />
       <Routes>
         <Route path="/" element={<LoginRegisterPage onLogin={handleLogin} />} />
-        <Route
-          path="/dashboard"
-          element={
-            user ? (
-              <Navbar userEmail={user} org={org} role={role}>
-                <DeviceData />
-              </Navbar>
-            ) : (
-              <Navigate to="/" replace />
-            )
-          }
-        />
-        <Route
-          path="/admin/devices"
-          element={
-            user && role === "admin" ? (
-              <Navbar userEmail={user} org={org} role={role}>
-                <AdminDevicesPage />
-              </Navbar>
-            ) : (
-              <Navigate to="/" replace />
-            )
-          }
-        />
-        <Route
-          path="/admin/users"
-          element={
-            user && role === "admin" ? (
-              <Navbar userEmail={user} org={org} role={role}>
-                <AdminUsersPage />
-              </Navbar>
-            ) : (
-              <Navigate to="/" replace />
-            )
-          }
-        />
+        <Route path="/dashboard" element={<DeviceData />} />
+        <Route path="/admin/devices" element={<AdminDevicesPage />} />
+        <Route path="/admin/users" element={<AdminUsersPage />} />
       </Routes>
     </Router>
   );
