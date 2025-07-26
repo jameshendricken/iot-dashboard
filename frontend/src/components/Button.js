@@ -2,10 +2,10 @@ import React from "react";
 import './Button.css';
 import {Link} from 'react-router-dom';
 
-export function Button() {
+export function Button(onLogout) {
   return (
     <Link to="sign-out">
-        <button className="btn">
+        <button className="btn" onClick={onLogout}>
             Sign Out
         </button>
     </Link>

@@ -68,14 +68,11 @@ function Navbar({ userEmail, org, role, onLogout }) {
                 )}
                 
             </ul>
-
-            <Button />
-            
-
-            {/* button working fine */}
-            <button onClick={onLogout} className="navbar-logout-button">
-                        Logout
-            </button>
+            <div className="navbar-user-info">
+                <span className="navbar-user-email">{userEmail}</span>
+                <span className="navbar-user-org">Org: {org}</span>
+            </div>
+            <Button onLogout={handleLogout}/>
         </nav>
     </>
   );
