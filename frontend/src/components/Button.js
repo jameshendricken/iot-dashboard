@@ -13,11 +13,11 @@ export function Button() {
     console.log("User logged out");
   };
   return (
-    <button className="btn" onClick={handleLogout}>
-            Sign Out
-    </button>
-    // <Link to="sign-out">
-        
-    // </Link>
+    <>
+      <button className="btn" onClick={handleLogout}>
+        Sign Out
+      </button>
+      <Navigate to="/" replace />
+    </>
   );
 }
