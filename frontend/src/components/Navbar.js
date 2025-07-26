@@ -25,34 +25,33 @@ function Navbar({ userEmail, org, role, onLogout }) {
             <div className="menu-icon" onClick={handleClick}>
                 <i className={click ? 'fas fa-times' : 'fas fa-bars'} />
             </div>
-            <ul className={click ? 'navbar-menu active' : 'navbar-menu'}>
-                <li className="navbar-item">
-                    <Link to="/dashboard" className="navbar-links" onClick={closeMobileMenu}>
-                        Dashboard
-                    </Link>
-                </li>
-                {role === 'admin' && (
-                    <>
-                        <li className="navbar-item">
-                            <Link to="/admin/devices" className="navbar-links" onClick={closeMobileMenu}>
-                                Admin <i className="fas fa-caret-down" />
-                            </Link>
-                            {dropdown && <Dropdown />}
-                        </li>
-                    </>
-                )}
-                
-                <li className="navbar-item">
-                    <span className="navbar-user">{userEmail}</span>
-                </li>
-                <li className="navbar-item">
-                    <span className="navbar-org">Org: {org}</span>
-                </li>
-                <li className="navbar-item">
-                    <span className="navbar-role">Role: {role}</span>
-                </li>
-                
-            </ul>
+            <div className="navbar-user-info">
+                <span className="navbar-user-email">{userEmail}</span>
+                <span className="navbar-user-org">Org: {org}</span>
+                <span className="navbar-user-role">Role: {role}</span>
+            </div>
+            <div>
+                <ul className={click ? 'navbar-menu active' : 'navbar-menu'}>
+                    <li className="navbar-item">
+                        <Link to="/dashboard" className="navbar-links" onClick={closeMobileMenu}>
+                            Dashboard
+                        </Link>
+                    </li>
+                    {role === 'admin' && (
+                        <>
+                            <li className="navbar-item">
+                                <Link to="/admin/devices" className="navbar-links" onClick={closeMobileMenu}>
+                                    Admin <i className="fas fa-caret-down" />
+                                </Link>
+                                {dropdown && <Dropdown />}
+                            </li>
+                        </>
+                    )}
+                    
+                </ul>
+            </div>
+
+            {/* button working fine */}
             <button onClick={onLogout} className="navbar-logout-button">
                         Logout
             </button>
