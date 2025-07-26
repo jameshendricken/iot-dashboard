@@ -1,7 +1,7 @@
 import React from 'react'
 import { Link } from 'react-router-dom';
 import { button }  from './Button';
-import 'Navbar.css';
+import './Navbar.css';
 import Dropdown from './Dropdown';
 
 function Navbar({ userEmail, org, role, onLogout }) {
