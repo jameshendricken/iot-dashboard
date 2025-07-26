@@ -25,7 +25,8 @@ export default function AdminDevicesPage() {
       ...device,
       organisation_id: device.organisation_id ? String(device.organisation_id) : "",
     };
-    console.log("Selected device:", enrichedDevice);
+    console.log("Selected device:", device);
+    console.log("Enriched device:", enrichedDevice);
     setSelectedDevice(enrichedDevice);
     setFormData(enrichedDevice);
     setErrors({});
