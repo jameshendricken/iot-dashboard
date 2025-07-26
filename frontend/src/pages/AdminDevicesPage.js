@@ -74,9 +74,6 @@ export default function AdminDevicesPage() {
     setEditMode(false);
   };
 
-  const selectedOrg = organisations.find(org => String(org.id) === formData.organisation_id);
-  const organisationName = selectedOrg ? selectedOrg.name : "Not assigned";
-
   return (
     <div className="p-4">
       <h2 className="text-xl font-bold mb-4">Admin Devices Page</h2>
@@ -111,7 +108,7 @@ export default function AdminDevicesPage() {
                       {key === "organisation_id" ? (
                         <select
                           name="organisation_id"
-                          value={organisationName || ""}
+                          value={formData.organisation_id || ""}
                           onChange={handleChange}
                           disabled={!editMode}
                           className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 ${
