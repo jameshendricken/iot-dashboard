@@ -125,6 +125,7 @@ def get_device_data(device_id: str, start: str = None, end: str = None):
 def get_devices(request: Request):
     try:
         user = getattr(request.state, "user", None)
+        print("🔍 Device route user:", user)  # Add this
         if not user or not user.get("organisation_id"):
             raise HTTPException(status_code=401, detail="Unauthenticated or organisation not set")
 
@@ -441,6 +442,8 @@ from starlette.middleware.base import BaseHTTPMiddleware
 @app.middleware("http")
 async def load_user(request: Request, call_next):
     user_email = request.cookies.get("email")
+    print("🍪 Email from cookie:", user_email)  # Debug line
+
     if user_email:
         try:
             conn = get_connection()
@@ -451,22 +454,27 @@ async def load_user(request: Request, call_next):
             conn.close()
 
             if row:
-                request.state.user = {
+                user = {
                     "id": row[0],
                     "email": row[1],
                     "organisation_id": row[2],
                     "roles_id": row[3]
                 }
+                print("✅ Loaded user:", user)  # Debug
+                request.state.user = user
             else:
+                print("⚠️ No matching user found for email")
                 request.state.user = None
         except Exception as e:
-            print("Middleware error:", e)
+            print("🔥 Middleware DB error:", e)
             request.state.user = None
     else:
+        print("⚠️ No email cookie found")
         request.state.user = None
 
     response = await call_next(request)
     return response
+
 
     
 @app.get("/organisations")
