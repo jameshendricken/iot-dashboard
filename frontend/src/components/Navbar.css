@@ -17,6 +17,13 @@
   font-size: 2rem;
 }
 
+.navbar-user {
+  color: #fff;
+  margin-right: 20px;
+  font-size: 1.2rem;
+  justify-content: end;
+}
+
 .fa-firstdraft {
   margin-left: 0.5rem;
   font-size: 1.6rem;
