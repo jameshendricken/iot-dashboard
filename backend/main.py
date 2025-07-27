@@ -16,7 +16,10 @@ app = FastAPI()
 # CORS setup
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Replace with your Vercel frontend URL for production
+    allow_origins=[
+        "http://localhost:3000",              # ✅ For local dev
+        "https://iot-dashboard-wine-alpha.vercel.app"  # ✅ For Vercel prod
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -124,7 +127,7 @@ def get_devices(request: Request):
         # Ensure user info is available from auth middleware/session
         user = request.state.user
         print("Device route user:", user)  # ✅ Confirm user is being picked up
-        
+
         if not user or "organisation_id" not in user:
             raise HTTPException(status_code=401, detail="Unauthenticated or organisation not set")
 
