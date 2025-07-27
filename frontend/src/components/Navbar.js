@@ -53,32 +53,36 @@ function Navbar({ userEmail, org, role }) {
             <div className="menu-icon" onClick={handleClick}>
                 <i className={click ? 'fas fa-times' : 'fas fa-bars'} />
             </div>
-            {/* <div className="navbar-user-info">
-                <span className="navbar-user-email">{userEmail}</span>
-                <span className="navbar-user-org">Org: {org}</span>
-                <span className="navbar-user-role">Role: {role}</span>
-            </div> */}
-            
-            <ul className={click ? 'nav-menu active' : 'nav-menu'}>
-                <li className="nav-item">
-                    <Link to="/dashboard" className="nav-links" onClick={closeMobileMenu}>
-                        Dashboard
-                    </Link>
-                </li>
-                {role === 'admin' && (
-                    <>
-                        <li className="nav-item" onMouseEnter={onMouseEnter} onMouseLeave={onMouseLeave} >
-                            <Link to="/admin" className="nav-links" onClick={closeMobileMenu}>
-                                Admin <i className="fas fa-caret-down" />
-                            </Link>
-                            {dropdown && <Dropdown />}
-                        </li>
-                    </>
-                )}
-                
-            </ul>
 
-            <Button onClick={handleLogout}/>
+            {userEmail && (
+                <>
+                    <ul className={click ? 'nav-menu active' : 'nav-menu'}>
+                        <li className="nav-item">
+                            <Link to="/dashboard" className="nav-links" onClick={closeMobileMenu}>
+                                Dashboard
+                            </Link>
+                        </li>
+                        {role === 'admin' && (
+                            <>
+                                <li className="nav-item" onMouseEnter={onMouseEnter} onMouseLeave={onMouseLeave} >
+                                    <Link to="/admin" className="nav-links" onClick={closeMobileMenu}>
+                                        Admin <i className="fas fa-caret-down" />
+                                    </Link>
+                                    {dropdown && <Dropdown />}
+                                </li>
+                            </>
+                        )}
+                
+                    </ul>
+
+                    <Button onClick={handleLogout}/>
+                
+                </>
+                
+            )}           
+            
+
+            
             
 
             {/* button working fine
