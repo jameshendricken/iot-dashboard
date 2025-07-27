@@ -338,48 +338,35 @@ def login_user(user: UserAuth):
     try:
         conn = get_connection()
         cursor = conn.cursor()
-        cursor.execute("SELECT id, password_hash, organisation_id, roles_id FROM users WHERE email = %s", (user.email,))
+        cursor.execute("SELECT id, password_hash, organisation_id, roles_id, name FROM users WHERE email = %s", (user.email,))
         row = cursor.fetchone()
 
-        # Step 1: Verify user credentials
         if not row or not pwd_context.verify(user.password, row[1]):
-            cursor.close()
-            conn.close()
             raise HTTPException(status_code=401, detail="Invalid credentials")
 
-        user_id, _, org_id, role_id = row
+        user_id, _, org_id, role_id, name = row
 
-        # Step 2: Get organisation name
         cursor.execute("SELECT name FROM organisations WHERE id = %s", (org_id,))
         org_row = cursor.fetchone()
-        if not org_row:
-            cursor.close()
-            conn.close()
-            raise HTTPException(status_code=404, detail="Organisation not found")
-        org_name = org_row[0]
+        org_name = org_row[0] if org_row else "Unassigned"
 
-        # Step 3: Get user roles
         cursor.execute("SELECT name FROM roles WHERE id = %s", (role_id,))
         role_row = cursor.fetchone()
-        if not role_row:
-            cursor.close()
-            conn.close()
-            raise HTTPException(status_code=404, detail="User Role not found")
-        role_name = role_row[0]
+        role_name = role_row[0] if role_row else "user"
 
         cursor.close()
         conn.close()
 
-        # Step 4: Return response with auth cookie
+        # 👉 Set cookies
         response = JSONResponse(content={
             "email": user.email,
             "org": org_name,
-            "role": role_name
+            "role": role_name,
+            "name": name
         })
-
-        # 🔐 Set secure cookie with email
-        response.set_cookie(key="email", value=user.email, httponly=True, secure=True, samesite="Lax")
-
+        response.set_cookie(key="email", value=user.email, httponly=True, secure=True, samesite="None")
+        response.set_cookie(key="org", value=org_name, httponly=True, secure=True, samesite="None")
+        response.set_cookie(key="role", value=role_name, httponly=True, secure=True, samesite="None")
         return response
 
     except Exception as e:
