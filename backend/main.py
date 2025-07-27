@@ -1,11 +1,15 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request, Body, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
-from fastapi import Body
 from pydantic import BaseModel
+from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.responses import JSONResponse
 from datetime import datetime
 import psycopg2
 import os
+from passlib.context import CryptContext
+from typing import Optional
+
 
 app = FastAPI()
 
@@ -97,20 +101,50 @@ def get_device_data(device_id: str, start: str = None, end: str = None):
         raise HTTPException(status_code=500, detail=str(e))
 
 # Get list of devices
+# @app.get("/devices")
+# def get_devices():
+#     try:
+#         conn = get_connection()
+#         cursor = conn.cursor()
+#         cursor.execute("SELECT device_id, name, organisation_id FROM devices")
+#         rows = cursor.fetchall()
+#         cursor.close()
+#         conn.close()
+
+#         if not rows:
+#             raise HTTPException(status_code=404, detail="No devices found")
+
+#         return [{"device_id": row[0], "name": row[1], "organisation_id": row[2]} for row in rows]
+#     except Exception as e:
+#         raise HTTPException(status_code=500, detail=str(e))
+
 @app.get("/devices")
-def get_devices():
+def get_devices(request: Request):
     try:
+        # Ensure user info is available from auth middleware/session
+        user = request.state.user
+        print("Device route user:", user)  # ✅ Confirm user is being picked up
+        
+        if not user or "organisation_id" not in user:
+            raise HTTPException(status_code=401, detail="Unauthenticated or organisation not set")
+
+        org_id = user["organisation_id"]
+
         conn = get_connection()
         cursor = conn.cursor()
-        cursor.execute("SELECT device_id, name, organisation_id FROM devices")
+        cursor.execute(
+            "SELECT device_id, name, organisation_id FROM devices WHERE organisation_id = %s",
+            (org_id,)
+        )
         rows = cursor.fetchall()
         cursor.close()
         conn.close()
 
         if not rows:
-            raise HTTPException(status_code=404, detail="No devices found")
+            raise HTTPException(status_code=404, detail="No devices found for this organisation")
 
         return [{"device_id": row[0], "name": row[1], "organisation_id": row[2]} for row in rows]
+
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -143,10 +177,6 @@ def get_dashboard(user_id: int):
         ]
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-
-
-from fastapi import Query
-from typing import Optional
 
 @app.get("/data/{device_id}/summary")
 def get_volume_summary(device_id: str, start: Optional[str] = Query(None), end: Optional[str] = Query(None)):
@@ -276,9 +306,6 @@ def get_histogram(device_id: str, start: str = None, end: str = None, user_email
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-from pydantic import BaseModel
-from passlib.context import CryptContext
-
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 class UserAuth(BaseModel):
@@ -305,6 +332,8 @@ def register_user(user: UserAuth):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+from fastapi.responses import JSONResponse
+
 @app.post("/login")
 def login_user(user: UserAuth):
     try:
@@ -318,40 +347,125 @@ def login_user(user: UserAuth):
             cursor.close()
             conn.close()
             raise HTTPException(status_code=401, detail="Invalid credentials")
-        
+
         user_id, _, org_id, role_id = row
 
         # Step 2: Get organisation name
         cursor.execute("SELECT name FROM organisations WHERE id = %s", (org_id,))
         org_row = cursor.fetchone()
-
         if not org_row:
             cursor.close()
             conn.close()
             raise HTTPException(status_code=404, detail="Organisation not found")
-
         org_name = org_row[0]
 
         # Step 3: Get user roles
         cursor.execute("SELECT name FROM roles WHERE id = %s", (role_id,))
         role_row = cursor.fetchone()
+        if not role_row:
+            cursor.close()
+            conn.close()
+            raise HTTPException(status_code=404, detail="User Role not found")
+        role_name = role_row[0]
 
         cursor.close()
         conn.close()
 
-        if not role_row:
-            raise HTTPException(status_code=404, detail="User Role not found")
-
-        role_name = role_row[0]
-
-        # Step 3: Return required info
-        return {
+        # Step 4: Return response with auth cookie
+        response = JSONResponse(content={
             "email": user.email,
-            "org": org_name,  # this is what frontend will store
-            "role": role_name,  # this is what frontend will store
-        }
+            "org": org_name,
+            "role": role_name
+        })
+
+        # 🔐 Set secure cookie with email
+        response.set_cookie(key="email", value=user.email, httponly=True, secure=True, samesite="Lax")
+
+        return response
+
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+
+# @app.post("/login")
+# def login_user(user: UserAuth):
+#     try:
+#         conn = get_connection()
+#         cursor = conn.cursor()
+#         cursor.execute("SELECT id, password_hash, organisation_id, roles_id FROM users WHERE email = %s", (user.email,))
+#         row = cursor.fetchone()
+
+#         # Step 1: Verify user credentials
+#         if not row or not pwd_context.verify(user.password, row[1]):
+#             cursor.close()
+#             conn.close()
+#             raise HTTPException(status_code=401, detail="Invalid credentials")
+        
+#         user_id, _, org_id, role_id = row
+
+#         # Step 2: Get organisation name
+#         cursor.execute("SELECT name FROM organisations WHERE id = %s", (org_id,))
+#         org_row = cursor.fetchone()
+
+#         if not org_row:
+#             cursor.close()
+#             conn.close()
+#             raise HTTPException(status_code=404, detail="Organisation not found")
+
+#         org_name = org_row[0]
+
+#         # Step 3: Get user roles
+#         cursor.execute("SELECT name FROM roles WHERE id = %s", (role_id,))
+#         role_row = cursor.fetchone()
+
+#         cursor.close()
+#         conn.close()
+
+#         if not role_row:
+#             raise HTTPException(status_code=404, detail="User Role not found")
+
+#         role_name = role_row[0]
+
+#         # Step 3: Return required info
+#         return {
+#             "email": user.email,
+#             "org": org_name,  # this is what frontend will store
+#             "role": role_name,  # this is what frontend will store
+#         }
+#     except Exception as e:
+#         raise HTTPException(status_code=500, detail=str(e))
+    
+    
+@app.middleware("http")
+async def load_user(request: Request, call_next):
+    try:
+        user_email = request.cookies.get("email")  # You can use a token or session ID instead
+        if user_email:
+            conn = get_connection()
+            cursor = conn.cursor()
+            cursor.execute("SELECT id, email, organisation_id FROM users WHERE email = %s", (user_email,))
+            row = cursor.fetchone()
+            cursor.close()
+            conn.close()
+
+            if row:
+                request.state.user = {
+                    "id": row[0],
+                    "email": row[1],
+                    "organisation_id": row[2]
+                }
+            else:
+                request.state.user = None
+        else:
+            request.state.user = None
+
+    except Exception as e:
+        print("Middleware error:", str(e))
+        request.state.user = None
+
+    response = await call_next(request)
+    return response
     
 @app.get("/organisations")
 def get_organisations():
