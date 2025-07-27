@@ -76,7 +76,7 @@ function Navbar({ userEmail, org, role }) {
                     </ul>
 
                     <Button onClick={handleLogout}/>
-                    <span className="navbar-user">{userEmail}</span>
+                    <div className="navbar-user">{userEmail}</div>
                 
                 </>
                 
