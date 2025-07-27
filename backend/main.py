@@ -124,32 +124,27 @@ def get_device_data(device_id: str, start: str = None, end: str = None):
 @app.get("/devices")
 def get_devices(request: Request):
     try:
-        # Ensure user info is available from auth middleware/session
-        user = request.state.user
-        print("Device route user:", user)  # ✅ Confirm user is being picked up
-
-        if not user or "organisation_id" not in user:
+        user = getattr(request.state, "user", None)
+        if not user or not user.get("organisation_id"):
             raise HTTPException(status_code=401, detail="Unauthenticated or organisation not set")
 
         org_id = user["organisation_id"]
 
         conn = get_connection()
         cursor = conn.cursor()
-        cursor.execute(
-            "SELECT device_id, name, organisation_id FROM devices WHERE organisation_id = %s",
-            (org_id,)
-        )
+        cursor.execute("SELECT device_id, name, organisation_id FROM devices WHERE organisation_id = %s", (org_id,))
         rows = cursor.fetchall()
         cursor.close()
         conn.close()
 
         if not rows:
-            raise HTTPException(status_code=404, detail="No devices found for this organisation")
+            raise HTTPException(status_code=404, detail="No devices found")
 
         return [{"device_id": row[0], "name": row[1], "organisation_id": row[2]} for row in rows]
-
     except Exception as e:
+        print("Device route error:", e)
         raise HTTPException(status_code=500, detail=str(e))
+
 
 # Dashboard summary model
 class DeviceSummary(BaseModel):
@@ -440,14 +435,17 @@ def login_user(user: UserAuth):
 #         raise HTTPException(status_code=500, detail=str(e))
     
     
+from fastapi import Request
+from starlette.middleware.base import BaseHTTPMiddleware
+
 @app.middleware("http")
 async def load_user(request: Request, call_next):
-    try:
-        user_email = request.cookies.get("email")  # You can use a token or session ID instead
-        if user_email:
+    user_email = request.cookies.get("email")
+    if user_email:
+        try:
             conn = get_connection()
             cursor = conn.cursor()
-            cursor.execute("SELECT id, email, organisation_id FROM users WHERE email = %s", (user_email,))
+            cursor.execute("SELECT id, email, organisation_id, roles_id FROM users WHERE email = %s", (user_email,))
             row = cursor.fetchone()
             cursor.close()
             conn.close()
@@ -456,19 +454,20 @@ async def load_user(request: Request, call_next):
                 request.state.user = {
                     "id": row[0],
                     "email": row[1],
-                    "organisation_id": row[2]
+                    "organisation_id": row[2],
+                    "roles_id": row[3]
                 }
             else:
                 request.state.user = None
-        else:
+        except Exception as e:
+            print("Middleware error:", e)
             request.state.user = None
-
-    except Exception as e:
-        print("Middleware error:", str(e))
+    else:
         request.state.user = None
 
     response = await call_next(request)
     return response
+
     
 @app.get("/organisations")
 def get_organisations():
