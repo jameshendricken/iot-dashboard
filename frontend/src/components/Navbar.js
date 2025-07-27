@@ -65,7 +65,7 @@ function Navbar({ userEmail, org, role }) {
                         {role === 'admin' && (
                             <>
                                 <li className="nav-item" onMouseEnter={onMouseEnter} onMouseLeave={onMouseLeave} >
-                                    <Link to="/admin" className="nav-links" onClick={closeMobileMenu}>
+                                    <Link to="/admin/devices" className="nav-links" onClick={closeMobileMenu}>
                                         Admin <i className="fas fa-caret-down" />
                                     </Link>
                                     {dropdown && <Dropdown />}
