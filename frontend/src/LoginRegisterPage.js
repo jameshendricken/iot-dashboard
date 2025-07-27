@@ -1,68 +1,92 @@
-import React, { useState, useEffect } from "react";
+// LoginRegisterPage.js
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "./context/AuthContext";
 
-export default function LoginRegisterPage({ onLogin }) {
+const API_URL = process.env.REACT_APP_API_BASE;
+if (!API_URL) {
+  console.error("REACT_APP_API_BASE is not defined. Please set it in your .env file.");
+}
+
+export default function LoginRegisterPage() {
+  const navigate = useNavigate();
+  const { login } = useAuth();
+
   const [isRegistering, setIsRegistering] = useState(false);
-  const [formData, setFormData] = useState({
-    email: "",
-    password: "",
-    confirmPassword: ""
-  });
+  const [formData, setFormData] = useState({ name: "", email: "", password: "" });
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
-  const [userEmail, setUserEmail] = useState(localStorage.getItem("userEmail") || null);
-  const [userOrg, setUserOrg] = useState(localStorage.getItem("userOrg") || null);
-  const [userRole, setUserRole] = useState(localStorage.getItem("userRole") || null);
   const [isLoading, setIsLoading] = useState(false);
-  const navigate = useNavigate();
 
-  useEffect(() => {
-    if (userEmail) {
-      onLogin(userEmail, userOrg, userRole);
-      navigate("/dashboard");
-    }
-  }, [userEmail, userOrg, navigate, onLogin]);
+  const validateEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  const validatePassword = (password) => password.length >= 6;
 
-  const toggleMode = () => {
-    setIsRegistering(!isRegistering);
-    setFormData({ email: "", password: "", confirmPassword: "" });
-    setError("");
+  const getPasswordStrength = (password) => {
+    if (password.length < 6) return "Weak";
+    if (password.match(/[A-Z]/) && password.match(/[0-9]/) && password.match(/[^a-zA-Z0-9]/)) return "Strong";
+    return "Moderate";
   };
 
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+  const handlePasswordReset = async () => {
+    if (!validateEmail(formData.email)) {
+      setError("Enter a valid email to reset password.");
+      return;
+    }
+
+    try {
+      const res = await fetch(`${API_URL}/reset-password`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: formData.email })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.detail || "Reset request failed");
+      alert("Password reset email sent.");
+    } catch (err) {
+      setError(err.message);
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsLoading(true);
     setError("");
     setSuccess(false);
-    setIsLoading(true);
 
-    if (isRegistering && formData.password !== formData.confirmPassword) {
-      setError("Passwords do not match");
+    if (!validateEmail(formData.email)) {
+      setError("Please enter a valid email address.");
+      setIsLoading(false);
+      return;
+    }
+    if (!validatePassword(formData.password)) {
+      setError("Password must be at least 6 characters long.");
       setIsLoading(false);
       return;
     }
 
     const endpoint = isRegistering ? "/register" : "/login";
     try {
-      const res = await fetch(`https://iot-backend-p66k.onrender.com${endpoint}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: formData.email, password: formData.password })
-      });
+      const res = await fetch(
+        `${API_URL}${endpoint}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({
+            email: formData.email,
+            password: formData.password,
+            ...(isRegistering && { name: formData.name })
+          })
+        }
+      );
+
       const data = await res.json();
       if (!res.ok) throw new Error(data.detail || "Authentication failed");
+
       setSuccess(true);
       setTimeout(() => {
-        console.log(data);
-        localStorage.setItem("userEmail", formData.email);
-        localStorage.setItem("userOrg", data.org || "default_org"); // Assuming the backend returns userOrg
-        localStorage.setItem("userRole", data.role || "user"); // Assuming the backend returns userRole
-        setUserEmail(formData.email);
-        setUserOrg(data.org);
-        setUserRole(data.role);
+        login(data.email, data.org, data.role, data.name);
+        navigate("/dashboard");
       }, 1000);
     } catch (err) {
       setError(err.message);
@@ -70,93 +94,81 @@ export default function LoginRegisterPage({ onLogin }) {
     }
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem("userEmail");
-    setUserEmail(null);
-    navigate("/");
-  };
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-gray-100">
-      {userEmail && (
-        <header className="w-full bg-white shadow p-4 flex justify-between items-center">
-          <span className="text-sm text-gray-600">Logged in as: <strong>{userEmail}</strong></span>
-          <button onClick={handleLogout} className="text-indigo-600 hover:underline">Logout</button>
-        </header>
-      )}
-      <div className="flex items-center justify-center py-12">
-        <div className="w-full max-w-md p-8 bg-white rounded-lg shadow-lg">
-          <div className="flex justify-center mb-6">
-            <img src="/logo.png" alt="Logo" className="h-12 w-auto" />
-          </div>
-          <h2 className="text-2xl font-bold text-center text-indigo-600 mb-6">
-            {isRegistering ? "Create an Account" : "Sign In to Dashboard"}
-          </h2>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Email</label>
-              <input
-                type="email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                className="w-full px-4 py-2 mt-1 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Password</label>
-              <input
-                type="password"
-                name="password"
-                value={formData.password}
-                onChange={handleChange}
-                className="w-full px-4 py-2 mt-1 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                required
-              />
-            </div>
-            {isRegistering && (
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Confirm Password</label>
-                <input
-                  type="password"
-                  name="confirmPassword"
-                  value={formData.confirmPassword}
-                  onChange={handleChange}
-                  className="w-full px-4 py-2 mt-1 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                  required
-                />
-              </div>
+    <div className="min-h-screen flex items-center justify-center bg-gray-100">
+      <div className="bg-white p-8 rounded shadow-md w-full max-w-md">
+        <h2 className="text-2xl font-semibold mb-4 text-center">
+          {isRegistering ? "Register" : "Login"}
+        </h2>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          {isRegistering && (
+            <input
+              type="text"
+              placeholder="Name"
+              value={formData.name}
+              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              className="w-full px-4 py-2 border rounded"
+              required
+            />
+          )}
+          <input
+            type="email"
+            placeholder="Email"
+            value={formData.email}
+            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+            className="w-full px-4 py-2 border rounded"
+            required
+          />
+          <input
+            type="password"
+            placeholder="Password"
+            value={formData.password}
+            onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+            className="w-full px-4 py-2 border rounded"
+            required
+          />
+          {isRegistering && (
+            <p className="text-sm text-gray-600">
+              Password strength: <strong>{getPasswordStrength(formData.password)}</strong>
+            </p>
+          )}
+          <button
+            type="submit"
+            disabled={isLoading}
+            className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition duration-200"
+          >
+            {isLoading ? (
+              <span className="animate-spin h-5 w-5 border-t-2 border-white border-solid rounded-full inline-block"></span>
+            ) : (
+              isRegistering ? "Register" : "Login"
             )}
-            {error && <p className="text-red-500 text-sm text-center">{error}</p>}
-            {success && (
-              <div className="flex justify-center">
-                <svg className="h-6 w-6 text-green-500 animate-bounce" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                </svg>
-              </div>
-            )}
+          </button>
+        </form>
+        {!isRegistering && (
+          <div className="mt-4 text-center">
             <button
-              type="submit"
-              className="w-full flex justify-center items-center gap-2 bg-indigo-600 text-white py-2 rounded-md hover:bg-indigo-700 transition"
-              disabled={isLoading || success}
+              onClick={handlePasswordReset}
+              className="text-blue-500 text-sm hover:underline"
             >
-              {isLoading ? (
-                <svg className="animate-spin h-5 w-5 text-white" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
-                </svg>
-              ) : (
-                isRegistering ? "Register" : "Login"
-              )}
+              Forgot password?
             </button>
-          </form>
-          <p className="mt-4 text-center text-sm text-gray-600">
-            {isRegistering ? "Already have an account?" : "Don't have an account?"}
-            <button onClick={toggleMode} className="text-indigo-600 hover:underline ml-2">
-              {isRegistering ? "Login" : "Register"}
-            </button>
-          </p>
+          </div>
+        )}
+        {success && (
+          <div className="mt-4 text-green-600 text-center animate-pulse">
+            Success! Logged in as: <strong>{formData.name}</strong>
+          </div>
+        )}
+        {error && <div className="mt-4 text-red-600 text-center">{error}</div>}
+        <div className="mt-4 text-center">
+          <button
+            onClick={() => setIsRegistering(!isRegistering)}
+            className="text-blue-600 hover:underline"
+          >
+            {isRegistering
+              ? "Already have an account? Login"
+              : "Don't have an account? Register"}
+          </button>
         </div>
       </div>
     </div>

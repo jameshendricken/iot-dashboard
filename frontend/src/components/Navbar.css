@@ -35,7 +35,7 @@
   grid-gap: 10px;
   list-style: none;
   text-align: center;
-  width: 70vw;
+  width: 50vw;
   justify-content: end;
   margin-right: 2rem;
 }
@@ -71,35 +71,43 @@
 }
 
 @media screen and (max-width: 960px) {
-  .NavbarItems {
-    position: relative;
+  .navbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 10;
   }
 
   .nav-menu {
-    display: flex;
+    display: none;
     flex-direction: column;
     width: 100%;
-    height: 90vh;
     position: absolute;
-    top: 80px;
-    left: -100%;
+    top: -10vh;
+    left: 0;
     opacity: 1;
-    transition: all 0.5s ease;
+    transition: all 5s ease;
+    z-index: 5; /* Lower than navbar */
   }
 
   .nav-menu.active {
     background: #242222;
     left: 0;
+    top: 80px;
     opacity: 1;
-    transition: all 0.5s ease;
-    z-index: 1;
+    transition: all 5s ease;
+    z-index: 5; /* Lower than navbar */
+    display: flex;
   }
+    
 
   .nav-links {
     text-align: center;
     padding: 2rem;
     width: 100%;
     display: table;
+    vertical-align: top;
   }
 
   .nav-links:hover {
@@ -108,7 +116,7 @@
   }
 
   .navbar-logo {
-    position: absolute;
+    position: releative;
     top: 0;
     left: 0;
     transform: translate(25%, 50%);

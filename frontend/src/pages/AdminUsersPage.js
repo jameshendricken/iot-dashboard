@@ -1,5 +1,10 @@
 import React, { useEffect, useState } from "react";
 
+const API_URL = process.env.REACT_APP_API_BASE;
+if (!API_URL) {
+  console.error("REACT_APP_API_BASE is not defined. Please set it in your .env file.");
+}
+
 export default function AdminUsersPage() {
   const [users, setUsers] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
@@ -9,12 +14,12 @@ export default function AdminUsersPage() {
   const [editMode, setEditMode] = useState(false);
 
   useEffect(() => {
-    fetch("https://iot-backend-p66k.onrender.com/users")
+    fetch(`${API_URL}/users`)
       .then((res) => res.json())
       .then((data) => setUsers(Array.isArray(data) ? data : []))
       .catch((err) => console.error("Error fetching users:", err));
 
-    fetch("https://iot-backend-p66k.onrender.com/organisations")
+    fetch(`${API_URL}/organisations`)
       .then((res) => res.json())
       .then((data) => setOrganisations(Array.isArray(data) ? data : []))
       .catch((err) => console.error("Error fetching organisations:", err));
@@ -50,7 +55,7 @@ export default function AdminUsersPage() {
   const handleSave = () => {
     if (!validateForm()) return;
 
-    fetch(`https://iot-backend-p66k.onrender.com/users/${formData.id}`, {
+    fetch(`${API_URL}/users/${formData.id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(formData),

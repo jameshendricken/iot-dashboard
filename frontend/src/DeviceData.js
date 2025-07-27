@@ -26,19 +26,26 @@ export default function DeviceData() {
   const socialCost = plasticSaved * 0.022;
 
   useEffect(() => {
-    fetch(`${API_URL}/devices`)
-      .then((res) => res.json())
-      .then((devices) => {
-        console.log("Fetched devices:", devices);
-        const allDevicesOption = [{ device_id: "ALL", name: "All Devices" }, ...devices];
-        setDeviceIds(allDevicesOption);
-        if (devices.length > 0) setSelectedDevice("ALL");
-      })
-      .catch((err) => {
-        console.error("Error fetching devices:", err);
-        setError("Failed to fetch device list.");
-      });
-  }, []);
+  fetch(`${API_URL}/devices`, {
+    method: "GET",
+    credentials: "include"  // ✅ This ensures cookies are sent
+  })
+    .then((res) => res.json())
+    .then((devices) => {
+      if (!Array.isArray(devices)) {
+        throw new Error(devices.detail || "Unexpected response");
+      }
+      console.log("Fetched devices:", devices);
+      const allDevicesOption = [{ device_id: "ALL", name: "All Devices" }, ...devices];
+      setDeviceIds(allDevicesOption);
+      if (devices.length > 0) setSelectedDevice("ALL");
+    })
+    .catch((err) => {
+      console.error("Error fetching devices:", err);
+      setError("Failed to fetch device list.");
+    });
+}, []);
+
 
   useEffect(() => {
     if (!selectedDevice) return;

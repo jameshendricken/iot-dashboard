@@ -2,11 +2,16 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 
+const API_URL = process.env.REACT_APP_API_BASE;
+if (!API_URL) {
+  console.error("REACT_APP_API_BASE is not defined. Please set it in your .env file.");
+}
+
 function Dashboard({ userId }) {
   const [devices, setDevices] = useState([]);
 
   useEffect(() => {
-    axios.get(`https://iot-backend-p66k.onrender.com/data`).then((res) => {
+    axios.get(`${API_URL}/data`).then((res) => {
       setDevices(res.data);
     });
   }, [userId]);

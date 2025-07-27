@@ -1,5 +1,10 @@
 import React, { useEffect, useState } from "react";
 
+const API_URL = process.env.REACT_APP_API_BASE;
+if (!API_URL) {
+  console.error("REACT_APP_API_BASE is not defined. Please set it in your .env file.");
+}
+
 export default function AdminDevicesPage() {
   const [devices, setDevices] = useState([]);
   const [selectedDevice, setSelectedDevice] = useState(null);
@@ -9,12 +14,12 @@ export default function AdminDevicesPage() {
   const [editMode, setEditMode] = useState(false);
 
   useEffect(() => {
-    fetch("https://iot-backend-p66k.onrender.com/devices")
+    fetch(`${API_URL}/devices`)
       .then((res) => res.json())
       .then((data) => setDevices(Array.isArray(data) ? data : []))
       .catch((err) => console.error("Error fetching devices:", err));
 
-    fetch("https://iot-backend-p66k.onrender.com/organisations")
+    fetch(`${API_URL}/organisations`)
       .then((res) => res.json())
       .then((data) => setOrganisations(Array.isArray(data) ? data : []))
       .catch((err) => console.error("Error fetching organisations:", err));
@@ -52,7 +57,7 @@ export default function AdminDevicesPage() {
   const handleSave = () => {
     if (!validateForm()) return;
 
-    fetch(`https://iot-backend-p66k.onrender.com/devices/${formData.device_id}`, {
+    fetch(`${API_URL}/devices/${formData.device_id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(formData),
