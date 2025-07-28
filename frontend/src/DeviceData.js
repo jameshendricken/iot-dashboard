@@ -143,25 +143,7 @@ export default function DeviceData() {
 
   return (
     
-    <div className="p-4 max-w-4xl mx-auto bg-gray-50 rounded-lg shadow-lg">
-
-      {/* <div className="flex gap-4 items-center">
-        <label htmlFor="device-select" className="font-medium">Select Device:</label>
-        <select
-          id="device-select"
-          value={selectedDevice}
-          onChange={(e) => setSelectedDevice(e.target.value)}
-          className="px-3 py-2 border rounded-md shadow-sm"
-        >
-          {deviceIds.map((device) => (
-            <option key={device.device_id} value={device.device_id}>
-              {device.name || device.device_id}
-            </option>
-          ))}
-        </select>
-      </div> */}
-
-      {/* You can continue rendering totalVolume, bottlesSaved, charts, etc. here */}
+    <div className="p-10 max-w-7xl mx-auto bg-gray-50 rounded-lg shadow-lg">
 
       <h2 className="text-3xl font-bold text-center mb-6 text-gray-700">Device Data Dashboard</h2>
 
@@ -276,7 +258,7 @@ export default function DeviceData() {
             )}
           </div>
 
-          <table className="min-w-full divide-y divide-gray-200 shadow rounded overflow-hidden mb-6">
+          {/* <table className="min-w-full divide-y divide-gray-200 shadow rounded overflow-hidden mb-6">
             <thead className="bg-gray-100">
               <tr>
                 <th className="px-4 py-2 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Timestamp</th>
@@ -294,7 +276,7 @@ export default function DeviceData() {
                 );
               })}
             </tbody>
-          </table>
+          </table> */}
 
           
         </>
