@@ -116,10 +116,10 @@
   }
 
   .navbar-logo {
-    position: releative;
+    position: relative;
     top: 0;
     left: 0;
-    transform: translate(25%, 50%);
+    transform: translate(-5%, 10%);
   }
 
   .menu-icon {

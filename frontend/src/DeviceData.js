@@ -145,7 +145,7 @@ export default function DeviceData() {
     
     <div className="p-10 max-w-7xl mx-auto bg-gray-50 rounded-lg shadow-lg">
 
-      <h2 className="text-3xl font-bold text-center mb-6 text-gray-700">Device Data Dashboard</h2>
+      <h2 className="pt-12 lg:pt-0 text-2xl font-bold text-center mb-6 text-gray-700">Device Data Dashboard</h2>
 
       <div className="grid sm:grid-cols-2 gap-6 mb-6">
         <div>

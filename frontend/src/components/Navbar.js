@@ -46,7 +46,7 @@ function Navbar({ userEmail, org, role }) {
 
   return (
     <>
-        <nav className="navbar">
+        <nav class="navbar">
             <Link to="/" className="navbar-logo" onClick={closeMobileMenu}>
                 IoT Dashboard <i class='fab fa-firstdraft' />
             </Link>
