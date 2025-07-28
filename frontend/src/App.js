@@ -4,6 +4,9 @@ import LoginRegisterPage from "./LoginRegisterPage";
 import DeviceData from "./DeviceData";
 import AdminDevicesPage from "./pages/AdminDevicesPage";
 import AdminUsersPage from "./pages/AdminUsersPage";
+import LoginPage from "./pages/Login";
+import RegisterPage from "./pages/Register";
+import ResetPasswordPage from "./pages/ResetPassword";
 import Layout from "./components/Layout";
 import Navbar from "./components/Navbar";
 import { AuthProvider, useAuth } from "./context/AuthContext";
@@ -18,7 +21,7 @@ function AppRoutes() {
         <Route
           path="/"
           element={
-            userEmail ? <Navigate to="/dashboard" replace /> : <LoginRegisterPage />
+            userEmail ? <Navigate to="/dashboard" replace /> : <LoginPage />
           }
         />
         <Route
@@ -39,6 +42,8 @@ function AppRoutes() {
             userEmail && userRole === "admin" ? <AdminUsersPage /> : <Navigate to="/" replace />
           }
         />
+        <Route path="/reset-password" element={<ResetPasswordPage />} />
+        <Route path="/register" element={<RegisterPage />} />
       </Routes>
     </>
   );

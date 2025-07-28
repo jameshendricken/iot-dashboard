@@ -72,6 +72,14 @@ function Navbar({ userEmail, org, role }) {
                                 </li>
                             </>
                         )}
+                        <li className="nav-item">
+                            <Link to="/" className="nav-links" onClick={() => {
+                                handleLogout();
+                                window.location.href = "/";
+                        }}>
+                                Log Out
+                            </Link>
+                        </li>
                 
                     </ul>
 
