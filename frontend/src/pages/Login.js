@@ -76,11 +76,12 @@ export default function LoginPage() {
                     <div className="mt-1">
                         <input
                         type="email"
+                        placeholder="Enter your email"
                         name="email"
                         value={formData.email}
                         onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                         required
-                        className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
+                        className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 border-2 border-slate-500 outline-1 -outline-offset-1 outline-slate-300 placeholder:text-gray-400 focus:outline-4 focus:-outline-offset-1 focus:outline-indigo-600 sm:text-sm/6"
                     />
                     </div>    
                 </div>
@@ -102,7 +103,7 @@ export default function LoginPage() {
                         placeholder="Password"
                         value={formData.password}
                         onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                        className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
+                        className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 border-2 border-slate-500 outline-1 -outline-offset-1 outline-slate-300 placeholder:text-gray-400 focus:outline-4 focus:-outline-offset-1 focus:outline-indigo-600 sm:text-sm/6"
                         required
                         />
                     </div>
@@ -124,7 +125,7 @@ export default function LoginPage() {
                 </div>
 
             </form>
-            
+
             <div className="mt-4 text-center">
                 Don't have an account?
                 <a href="/register" className="text-blue-600 hover:underline">
