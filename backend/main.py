@@ -1,7 +1,7 @@
 from fastapi import FastAPI, HTTPException, Request, Body, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.responses import JSONResponse
 from datetime import datetime
@@ -517,59 +517,50 @@ def update_organisation(org_id: int, payload: dict = Body(...)):
         return {"id": row[0], "name": row[1]}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-    
+
+
+class OrgIn(BaseModel):
+    name: str = Field(min_length=1, max_length=100, description="Name of the organisation")
+    notes: Optional[str] = None
+
+    class Config:
+        extra = "ignore"  # Ignore any extra fields not defined in the model
+
 @app.post("/organisations")
-def create_organisation(payload: dict = Body(...)):
+def create_org(payload: OrgIn):
     try:
-        conn = get_connection()
-        cursor = conn.cursor()
-        # Only allow known valid fields
-        allowed_keys = {"name"}
-        if not all(key in allowed_keys for key in payload.keys()):
-            raise HTTPException(status_code=400, detail="Invalid fields in payload")
-        query = "INSERT INTO organisations (name) VALUES (%s) RETURNING id, name"
-        cursor.execute(query, (payload["name"],))
-        row = cursor.fetchone()
-        conn.commit()
-        cursor.close()
-        conn.close()
-        return {"id": row[0], "name": row[1]}
+        conn = get_connection(); cur = conn.cursor()
+        cur.execute(
+            "INSERT INTO organisations (name, notes) VALUES (%s, %s) RETURNING id, name, notes",
+            (payload.name, payload.notes)
+        )
+        row = cur.fetchone(); conn.commit()
+        cur.close(); conn.close()
+        return {"id": row[0], "name": row[1], "notes": row[2]}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
     
     
     
-@app.put("/devices/{device_id}")
-def update_device(device_id: str, payload: dict = Body(...)):
+@app.put("/organisations/{org_id}")
+def update_org(org_id: int, payload: OrgIn):
     try:
-        conn = get_connection()
-        cursor = conn.cursor()
-
-        # Only update known valid fields
-        allowed_keys = {"name", "organisation_id"}  # use organisation_id instead of organisation
-
-        for key, value in payload.items():
-            if key in allowed_keys:
-                query = f"UPDATE devices SET {key} = %s WHERE device_id = %s"
-                cursor.execute(query, (value, device_id))
-
-        conn.commit()
-
-#       This is where the eror was happening when trying to update a device and reselcting the device returns all values associated with the device_id
-        cursor.execute("SELECT device_id, name, organisation_id FROM devices WHERE device_id = %s", (device_id,))
-        row = cursor.fetchone()
-
+        conn = get_connection(); cur = conn.cursor()
+        cur.execute(
+            "UPDATE organisations SET name = %s, notes = %s WHERE id = %s RETURNING id, name, notes",
+            (payload.name, payload.notes, org_id)
+        )
+        row = cur.fetchone()
         if not row:
-            raise HTTPException(status_code=404, detail="Device not found")
-
-        columns = [desc[0] for desc in cursor.description]
-        cursor.close()
-        conn.close()
-
-        return dict(zip(columns, row))
-
+            cur.close(); conn.close()
+            raise HTTPException(status_code=404, detail="Organisation not found")
+        conn.commit(); cur.close(); conn.close()
+        return {"id": row[0], "name": row[1], "notes": row[2]}
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
 
 @app.get("/users")
 def get_users():
