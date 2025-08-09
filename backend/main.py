@@ -496,6 +496,48 @@ def get_organisation(org_id: int):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
     
+@app.put("/organisations/{org_id}")
+def update_organisation(org_id: int, payload: dict = Body(...)):
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
+        # Only update known valid fields
+        allowed_keys = {"name"}
+        for key, value in payload.items():
+            if key in allowed_keys:
+                query = f"UPDATE organisations SET {key} = %s WHERE id = %s"
+                cursor.execute(query, (value, org_id))
+        conn.commit()
+        cursor.execute("SELECT id, name FROM organisations WHERE id = %s", (org_id,))
+        row = cursor.fetchone()
+        cursor.close()
+        conn.close()
+        if not row:
+            raise HTTPException(status_code=404, detail="Organisation not found")   
+        return {"id": row[0], "name": row[1]}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    
+@app.post("/organisations")
+def create_organisation(payload: dict = Body(...)):
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
+        # Only allow known valid fields
+        allowed_keys = {"name"}
+        if not all(key in allowed_keys for key in payload.keys()):
+            raise HTTPException(status_code=400, detail="Invalid fields in payload")
+        query = "INSERT INTO organisations (name) VALUES (%s) RETURNING id, name"
+        cursor.execute(query, (payload["name"],))
+        row = cursor.fetchone()
+        conn.commit()
+        cursor.close()
+        conn.close()
+        return {"id": row[0], "name": row[1]}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    
+    
     
 @app.put("/devices/{device_id}")
 def update_device(device_id: str, payload: dict = Body(...)):
