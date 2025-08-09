@@ -14,7 +14,7 @@ export default function AdminDevicesPage() {
   const [editMode, setEditMode] = useState(false);
 
   useEffect(() => {
-    fetch(`${API_URL}/devices`)
+    fetch(`${API_URL}/admindevices`)
       .then((res) => res.json())
       .then((data) => setDevices(Array.isArray(data) ? data : []))
       .catch((err) => console.error("Error fetching devices:", err));

@@ -104,22 +104,22 @@ def get_device_data(device_id: str, start: str = None, end: str = None):
         raise HTTPException(status_code=500, detail=str(e))
 
 # Get list of devices
-# @app.get("/devices")
-# def get_devices():
-#     try:
-#         conn = get_connection()
-#         cursor = conn.cursor()
-#         cursor.execute("SELECT device_id, name, organisation_id FROM devices")
-#         rows = cursor.fetchall()
-#         cursor.close()
-#         conn.close()
+@app.get("/admindevices")
+def get_devices():
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
+        cursor.execute("SELECT device_id, name, organisation_id FROM devices")
+        rows = cursor.fetchall()
+        cursor.close()
+        conn.close()
 
-#         if not rows:
-#             raise HTTPException(status_code=404, detail="No devices found")
+        if not rows:
+            raise HTTPException(status_code=404, detail="No devices found")
 
-#         return [{"device_id": row[0], "name": row[1], "organisation_id": row[2]} for row in rows]
-#     except Exception as e:
-#         raise HTTPException(status_code=500, detail=str(e))
+        return [{"device_id": row[0], "name": row[1], "organisation_id": row[2]} for row in rows]
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/devices")
 def get_devices(request: Request):
