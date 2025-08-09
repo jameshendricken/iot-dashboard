@@ -4,6 +4,7 @@ import LoginRegisterPage from "./LoginRegisterPage";
 import DeviceData from "./DeviceData";
 import AdminDevicesPage from "./pages/AdminDevicesPage";
 import AdminUsersPage from "./pages/AdminUsersPage";
+import AdminOrgsPage from "./pages/AdminOrgPage";
 import LoginPage from "./pages/Login";
 import RegisterPage from "./pages/Register";
 import ResetPasswordPage from "./pages/ResetPassword";
@@ -40,6 +41,12 @@ function AppRoutes() {
           path="/admin/users"
           element={
             userEmail && userRole === "admin" ? <AdminUsersPage /> : <Navigate to="/" replace />
+          }
+        />
+        <Route
+          path="/admin/organisations"
+          element={
+            userEmail && userRole === "admin" ? <AdminOrgsPage /> : <Navigate to="/" replace />
           }
         />
         <Route path="/reset-password" element={<ResetPasswordPage />} />
