@@ -480,6 +480,23 @@ def get_organisations():
     except Exception as e: 
         raise HTTPException(status_code=500, detail=str(e))
     
+@app.get("/organisations/{org_id}")
+def get_organisation(org_id: int):
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
+        cursor.execute("SELECT id, name FROM organisations WHERE id = %s", (org_id,))
+        row = cursor.fetchone()
+        cursor.close()
+        conn.close()
+
+        if not row:
+            raise HTTPException(status_code=404, detail="Organisation not found")
+        return {"id": row[0], "name": row[1]}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    
+    
 @app.put("/devices/{device_id}")
 def update_device(device_id: str, payload: dict = Body(...)):
     try:
