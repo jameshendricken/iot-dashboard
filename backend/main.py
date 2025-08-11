@@ -567,7 +567,7 @@ def get_users():
     try:
         conn = get_connection()
         cursor = conn.cursor()
-        cursor.execute("SELECT id, email, organisation_id, roles_id FROM users")
+        cursor.execute("SELECT id, email, organisation_id, roles_id, name FROM users")
         rows = cursor.fetchall()
         cursor.close()
         conn.close()
@@ -575,7 +575,7 @@ def get_users():
         if not rows:
             raise HTTPException(status_code=404, detail="No users found")
 
-        return [{"id": row[0], "email": row[1], "organisation_id": row[2], "roles_id": row[3]} for row in rows]
+        return [{"id": row[0], "email": row[1], "organisation_id": row[2], "roles_id": row[3], "name": row[4]} for row in rows]
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
     
@@ -584,7 +584,7 @@ def get_user(user_id: int):
     try:
         conn = get_connection()
         cursor = conn.cursor()
-        cursor.execute("SELECT id, email, organisation_id, roles_id FROM users WHERE id = %s", (user_id,))
+        cursor.execute("SELECT id, email, organisation_id, roles_id, name FROM users WHERE id = %s", (user_id,))
         row = cursor.fetchone()
         cursor.close()
         conn.close()
@@ -592,7 +592,7 @@ def get_user(user_id: int):
         if not row:
             raise HTTPException(status_code=404, detail="User not found")
 
-        return {"id": row[0], "email": row[1], "organisation_id": row[2], "roles_id": row[3]}
+        return {"id": row[0], "email": row[1], "organisation_id": row[2], "roles_id": row[3], "name": row[4]}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
     
@@ -603,7 +603,7 @@ def update_user(user_id: int, payload: dict = Body(...)):
         cursor = conn.cursor()
 
         # Only update known valid fields
-        allowed_keys = {"email", "organisation_id", "roles_id"}
+        allowed_keys = {"email", "organisation_id", "roles_id", "name"}
 
         for key, value in payload.items():
             if key in allowed_keys:
@@ -612,7 +612,7 @@ def update_user(user_id: int, payload: dict = Body(...)):
 
         conn.commit()
 
-        cursor.execute("SELECT id, email, organisation_id, roles_id FROM users WHERE id = %s", (user_id,))
+        cursor.execute("SELECT id, email, organisation_id, roles_id, name FROM users WHERE id = %s", (user_id,))
         row = cursor.fetchone()
 
         if not row:
