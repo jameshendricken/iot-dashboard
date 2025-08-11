@@ -628,7 +628,7 @@ def update_user(user_id: int, payload: dict = Body(...)):
         raise HTTPException(status_code=500, detail=str(e))
     
 @app.get("/roles")
-def get_users():
+def get_roles():
     try:
         conn = get_connection()
         cursor = conn.cursor()
@@ -657,6 +657,6 @@ def get_role(role_id: int):
         if not row:
             raise HTTPException(status_code=404, detail="User not found")
 
-        return {"id": row[0], "name": row[2]}
+        return {"id": row[0], "name": row[1]}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
