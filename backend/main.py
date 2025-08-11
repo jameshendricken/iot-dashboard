@@ -725,12 +725,59 @@ def get_unit(unitId: int = Query(..., description="units.id")):
     }
 
 # --- ALL historical data for a unit (across device swaps) ---
+# @app.get("/unit/data")
+# def get_unit_data(
+#     unitId: int = Query(...),
+#     from_: Optional[str] = Query(None, alias="from"),
+#     to: Optional[str]   = Query(None),
+#     limit: int = Query(100000)
+# ):
+#     conn = get_connection(); cur = conn.cursor()
+#     cur.execute("""
+#         SELECT
+#           dd.timestamp, dd.volume_ml,
+#           d.device_id AS device_id,
+#           d.id        AS device_pk
+#         FROM unit_devices ud
+#         JOIN devices d
+#           ON d.id = ud.device_id
+#         JOIN device_data dd
+#           ON dd.device_id = d.device_id
+#          AND dd.timestamp >= ud.attached_at
+#          AND dd.timestamp <  COALESCE(ud.detached_at, 'infinity')
+#          AND (%s::timestamptz IS NULL OR dd.timestamp >= %s)
+#          AND (%s::timestamptz IS NULL OR dd.timestamp <= %s)
+#         WHERE ud.unit_id = %s
+#         ORDER BY dd.timestamp
+#         LIMIT %s
+#     """, (from_, from_, to, to, unitId, limit))
+#     rows = cur.fetchall(); cur.close(); conn.close()
+
+#     # Build devices list and data array
+#     devices = {}
+#     data = []
+#     for ts, vol, dev_id, dev_pk in rows:
+#         if dev_pk not in devices:
+#             devices[dev_pk] = {"device_pk": dev_pk, "device_id": dev_id}
+#         data.append({
+#             "timestamp": ts.isoformat() if isinstance(ts, datetime) else ts,
+#             "volume_ml": vol,
+#             "device_id": dev_id,
+#             "device_pk": dev_pk
+#         })
+
+#     return {
+#         "unitId": unitId,
+#         "devices": list(devices.values()),
+#         "data": data
+#     }
+
 @app.get("/unit/data")
 def get_unit_data(
     unitId: int = Query(...),
-    from_: Optional[str] = Query(None, alias="from"),
-    to: Optional[str]   = Query(None),
-    limit: int = Query(100000)
+    from_: str | None = Query(None, alias="from"),
+    to: str | None = None,
+    limit: int = 100000
 ):
     conn = get_connection(); cur = conn.cursor()
     cur.execute("""
@@ -743,31 +790,48 @@ def get_unit_data(
           ON d.id = ud.device_id
         JOIN device_data dd
           ON dd.device_id = d.device_id
+         -- clip to attachment window (dd.timestamp is timestamp WITHOUT time zone)
          AND dd.timestamp >= ud.attached_at
-         AND dd.timestamp <  COALESCE(ud.detached_at, 'infinity')
-         AND (%s::timestamptz IS NULL OR dd.timestamp >= %s)
-         AND (%s::timestamptz IS NULL OR dd.timestamp <= %s)
+         AND dd.timestamp < COALESCE(ud.detached_at, 'infinity')
+         -- apply user window with consistent types
+         AND (%s::timestamp IS NULL OR dd.timestamp >= %s::timestamp)
+         AND (%s::timestamp IS NULL OR dd.timestamp <= %s::timestamp)
         WHERE ud.unit_id = %s
         ORDER BY dd.timestamp
         LIMIT %s
     """, (from_, from_, to, to, unitId, limit))
     rows = cur.fetchall(); cur.close(); conn.close()
 
-    # Build devices list and data array
-    devices = {}
-    data = []
+    devices, data = {}, []
     for ts, vol, dev_id, dev_pk in rows:
-        if dev_pk not in devices:
-            devices[dev_pk] = {"device_pk": dev_pk, "device_id": dev_id}
+        devices.setdefault(dev_pk, {"device_pk": dev_pk, "device_id": dev_id})
         data.append({
-            "timestamp": ts.isoformat() if isinstance(ts, datetime) else ts,
+            "timestamp": ts.isoformat() if hasattr(ts,"isoformat") else ts,
             "volume_ml": vol,
             "device_id": dev_id,
             "device_pk": dev_pk
         })
 
-    return {
-        "unitId": unitId,
-        "devices": list(devices.values()),
-        "data": data
-    }
+    return {"unitId": unitId, "devices": list(devices.values()), "data": data}
+
+# TEMP sanity endpoint
+@app.get("/unit/data/raw")
+def get_unit_data_raw(unitId: int, from_: str | None = Query(None, alias="from"), to: str | None = None, limit: int = 100000):
+    conn = get_connection(); cur = conn.cursor()
+    cur.execute("""
+        SELECT dd.timestamp, dd.volume_ml, d.device_id, d.id AS device_pk
+        FROM unit_devices ud
+        JOIN devices d  ON d.id = ud.device_id
+        JOIN device_data dd ON dd.device_id = d.device_id
+        WHERE ud.unit_id = %s
+          AND (%s::timestamp IS NULL OR dd.timestamp >= %s::timestamp)
+          AND (%s::timestamp IS NULL OR dd.timestamp <= %s::timestamp)
+        ORDER BY dd.timestamp
+        LIMIT %s
+    """, (unitId, from_, from_, to, to, limit))
+    rows = cur.fetchall(); cur.close(); conn.close()
+    devices, data = {}, []
+    for ts, vol, dev_id, dev_pk in rows:
+        devices.setdefault(dev_pk, {"device_pk": dev_pk, "device_id": dev_id})
+        data.append({"timestamp": ts.isoformat() if hasattr(ts,"isoformat") else ts, "volume_ml": vol, "device_id": dev_id, "device_pk": dev_pk})
+    return {"unitId": unitId, "devices": list(devices.values()), "data": data}
