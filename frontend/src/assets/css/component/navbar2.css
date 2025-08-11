@@ -1,0 +1,99 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ===== NAVBAR FRAME ===== */
+.navbar {
+  @apply border-b border-gray-200 bg-white/80 backdrop-blur 
+         dark:border-gray-800 dark:bg-gray-900/80;
+}
+.navbar-inner {
+  @apply mx-auto max-w-7xl px-4 sm:px-6 lg:px-8;
+}
+.navbar-top {
+  @apply flex h-16 items-center justify-between;
+}
+.navbar-title {
+  @apply text-lg font-semibold tracking-tight 
+         text-gray-900 dark:text-gray-100;
+}
+
+/* ===== LINKS ===== */
+.nav-link {
+  @apply block px-3 py-2 rounded-md text-sm font-medium transition-colors;
+}
+.nav-link-active {
+  @apply bg-gray-900 text-white dark:bg-gray-100 dark:text-gray-900;
+}
+.nav-link-inactive {
+  @apply text-gray-700 hover:bg-gray-100 hover:text-gray-900
+         dark:text-gray-200 dark:hover:bg-gray-800 dark:hover:text-white;
+}
+
+/* ===== HAMBURGER ===== */
+.hamburger-btn {
+  @apply inline-flex items-center justify-center rounded-md p-2 
+         text-gray-700 hover:bg-gray-100 focus:outline-none 
+         focus:ring-2 focus:ring-indigo-500
+         dark:text-gray-200 dark:hover:bg-gray-800;
+}
+
+/* ===== MOBILE MENU ===== */
+.mobile-menu {
+  @apply space-y-1 px-2 pb-3 pt-2;
+}
+
+/* ===== USER MENU (AVATAR & DROPDOWN) ===== */
+.user-btn {
+  @apply inline-flex items-center gap-2 rounded-full border border-transparent 
+         px-2 py-1 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500
+         dark:hover:bg-gray-800;
+}
+.user-avatar {
+  @apply grid h-9 w-9 place-items-center rounded-full bg-gray-200 text-gray-700 
+         dark:bg-gray-700 dark:text-gray-100;
+  font-weight: 600;
+}
+.user-chevron {
+  @apply h-4 w-4 text-gray-500 dark:text-gray-400;
+}
+
+.user-dropdown {
+  @apply absolute right-0 z-50 mt-2 w-64 overflow-hidden rounded-lg border 
+         border-gray-200 bg-white shadow-lg dark:border-gray-800 dark:bg-gray-800 ;
+}
+.user-dropdown-header {
+  @apply px-4 py-3 border-b border-gray-200 dark:border-gray-800;
+}
+.user-email {
+  @apply text-sm text-gray-600 dark:text-gray-300 break-all;
+}
+.user-dropdown-list {
+  @apply p-2 bg-opacity-100 dark:bg-opacity-100 z-50;
+}
+.user-item {
+  @apply w-full flex items-center justify-between gap-2 rounded-md px-3 py-2 text-sm
+         text-gray-800 hover:bg-gray-100 dark:text-gray-100 dark:hover:bg-gray-800;
+}
+.user-divider {
+  @apply my-2 h-px bg-gray-200 dark:bg-gray-800;
+}
+
+/* Toggle switch (uses a hidden checkbox) */
+.toggle {
+  @apply relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer items-center rounded-full 
+         border-2 border-transparent transition;
+}
+.toggle-track {
+  @apply absolute inset-0 rounded-full bg-gray-300 dark:bg-gray-700 transition;
+}
+.toggle-thumb {
+  @apply pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow 
+         ring-0 transition;
+}
+.toggle-checked .toggle-thumb {
+  @apply translate-x-5;
+}
+.toggle-unchecked .toggle-thumb {
+  @apply translate-x-0;
+}

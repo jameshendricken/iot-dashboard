@@ -8,9 +8,9 @@
     "react": "^18.x",
     "react-datepicker": "^4.24.0",
     "react-dom": "^18.x",
+    "react-router-dom": "^6.22.3",
     "react-scripts": "latest",
-    "recharts": "^2.7.2",
-    "react-router-dom": "^6.22.3"
+    "recharts": "^2.7.2"
   },
   "scripts": {
     "start": "react-scripts start",
@@ -18,9 +18,10 @@
     "test": "react-scripts test"
   },
   "devDependencies": {
-    "tailwindcss": "^3.x",
+    "autoprefixer": "^10.x",
     "postcss": "^8.x",
-    "autoprefixer": "^10.x"
+    "postcss-import": "^16.1.1",
+    "tailwindcss": "^3.x"
   },
   "browserslist": {
     "production": [

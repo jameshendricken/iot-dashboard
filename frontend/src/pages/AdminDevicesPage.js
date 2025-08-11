@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
+import SearchBar from "../assets/js/SearchBar"; // Adjust path if needed
 
 const API_URL = process.env.REACT_APP_API_BASE;
 if (!API_URL) {
@@ -7,33 +8,51 @@ if (!API_URL) {
 
 export default function AdminDevicesPage() {
   const [devices, setDevices] = useState([]);
+  const [organisations, setOrganisations] = useState([]);
   const [selectedDevice, setSelectedDevice] = useState(null);
   const [formData, setFormData] = useState({});
   const [errors, setErrors] = useState({});
-  const [organisations, setOrganisations] = useState([]);
   const [editMode, setEditMode] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [query, setQuery] = useState("");
 
   useEffect(() => {
-    fetch(`${API_URL}/admindevices`)
-      .then((res) => res.json())
-      .then((data) => setDevices(Array.isArray(data) ? data : []))
-      .catch((err) => console.error("Error fetching devices:", err));
-
-    fetch(`${API_URL}/organisations`)
-      .then((res) => res.json())
-      .then((data) => setOrganisations(Array.isArray(data) ? data : []))
-      .catch((err) => console.error("Error fetching organisations:", err));
+    const load = async () => {
+      setLoading(true);
+      try {
+        const [devRes, orgRes] = await Promise.all([
+          fetch(`${API_URL}/admindevices`, { credentials: "include" }),
+          fetch(`${API_URL}/organisations`, { credentials: "include" }),
+        ]);
+        const [devData, orgData] = await Promise.all([devRes.json(), orgRes.json()]);
+        setDevices(Array.isArray(devData) ? devData : []);
+        setOrganisations(Array.isArray(orgData) ? orgData : []);
+      } catch (err) {
+        console.error("Error loading admin devices/orgs:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    load();
   }, []);
 
+  const filteredDevices = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    if (!q) return devices;
+    return devices.filter((d) => {
+      const name = (d.name || "").toLowerCase();
+      const id = String(d.device_id || "").toLowerCase();
+      return name.includes(q) || id.includes(q);
+    });
+  }, [devices, query]);
+
   const handleSelectDevice = (device) => {
-    const enrichedDevice = {
+    const enriched = {
       ...device,
       organisation_id: device.organisation_id ? String(device.organisation_id) : "",
     };
-    console.log("Selected device:", device);
-    console.log("Enriched device:", enrichedDevice);
-    setSelectedDevice(enrichedDevice);
-    setFormData(enrichedDevice);
+    setSelectedDevice(enriched);
+    setFormData(enriched);
     setErrors({});
     setEditMode(false);
   };
@@ -46,7 +65,7 @@ export default function AdminDevicesPage() {
   const validateForm = () => {
     const newErrors = {};
     Object.entries(formData).forEach(([key, value]) => {
-      if (key !== "device_id" && !value.toString().trim()) {
+      if (key !== "device_id" && (value === undefined || String(value).trim() === "")) {
         newErrors[key] = "This field is required.";
       }
     });
@@ -54,25 +73,24 @@ export default function AdminDevicesPage() {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!validateForm()) return;
-
-    fetch(`${API_URL}/devices/${formData.device_id}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(formData),
-    })
-      .then((res) => res.json())
-      .then((updatedDevice) => {
-        setDevices((prev) =>
-          prev.map((dev) =>
-            dev.device_id === updatedDevice.device_id ? updatedDevice : dev
-          )
-        );
-        alert("Device updated successfully.");
-        setEditMode(false);
-      })
-      .catch((err) => console.error("Update failed:", err));
+    try {
+      const res = await fetch(`${API_URL}/devices/${formData.device_id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify(formData),
+      });
+      const updated = await res.json();
+      if (!res.ok) throw new Error(updated?.detail || "Failed to update device");
+      setDevices((prev) => prev.map((d) => (d.device_id === updated.device_id ? updated : d)));
+      setSelectedDevice(updated);
+      setFormData(updated);
+      setEditMode(false);
+    } catch (err) {
+      console.error("Update failed:", err);
+    }
   };
 
   const handleCancel = () => {
@@ -82,118 +100,151 @@ export default function AdminDevicesPage() {
   };
 
   return (
-    <div className="p-4">
-      <h2 className="text-xl font-bold mb-4">Admin Devices Page</h2>
-      <div className="flex gap-6">
-        <div className="w-1/3">
-          <h3 className="font-semibold mb-2">Devices</h3>
-          <ul className="bg-white rounded shadow p-2 divide-y">
-            {devices.map((device) => (
-              <li
-                key={device.device_id}
-                className="py-2 px-2 hover:bg-gray-100 cursor-pointer"
-                onClick={() => handleSelectDevice(device)}
-              >
-                {device.name || device.device_id}
-              </li>
-            ))}
+    <div className="mx-auto max-w-7xl p-4 sm:p-6 lg:p-8">
+      <div className="mb-6 flex items-center justify-between">
+        <h1 className="text-xl font-semibold text-gray-900 dark:text-gray-100">Admin Devices</h1>
+        {loading && (
+          <div className="inline-flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
+            <span className="h-4 w-4 animate-spin rounded-full border-2 border-indigo-600 border-t-transparent" />
+            Loading…
+          </div>
+        )}
+      </div>
+
+      <div className="grid gap-6 md:grid-cols-3">
+        {/* List */}
+        <div className="card h-fit md:sticky md:top-4">
+          <div className="mb-3">
+            <SearchBar value={query} onChange={setQuery} placeholder="Search devices by name or ID…" />
+            <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+              {filteredDevices.length} result{filteredDevices.length === 1 ? "" : "s"}
+            </p>
+          </div>
+
+          <ul className="divide-y divide-gray-200 dark:divide-gray-800">
+            {filteredDevices.map((device) => {
+              const active = selectedDevice?.device_id === device.device_id;
+              return (
+                <li key={device.device_id}>
+                  <button
+                    type="button"
+                    onClick={() => handleSelectDevice(device)}
+                    className={`w-full text-left px-3 py-2 transition rounded-md
+                      ${active
+                        ? "bg-indigo-50 text-indigo-900 dark:bg-indigo-900/30 dark:text-indigo-200"
+                        : "hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-800 dark:text-gray-100"}`}
+                  >
+                    <div className="font-medium">{device.name || "(Unnamed device)"}</div>
+                    <div className="text-xs text-gray-500 dark:text-gray-400">{device.device_id}</div>
+                  </button>
+                </li>
+              );
+            })}
+            {filteredDevices.length === 0 && (
+              <li className="px-3 py-2 text-sm text-gray-500 dark:text-gray-400">No matching devices.</li>
+            )}
           </ul>
         </div>
 
-        <div className="w-2/3">
-          {selectedDevice && (
-            <div className="bg-white rounded shadow p-4">
-              <h3 className="font-semibold text-lg mb-4">Device Details</h3>
-              <form className="space-y-4">
-                {Object.entries(formData)
-                  .filter(([key]) => key !== "device_name")
-                  .map(([key, value]) => (
+        {/* Details */}
+        <div className="md:col-span-2">
+          {selectedDevice ? (
+            <div className="card">
+              <div className="mb-4 flex items-center justify-between">
+                <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                  Device details
+                </h2>
+                {!editMode && (
+                  <button type="button" onClick={() => setEditMode(true)} className="btn-primary">
+                    Edit
+                  </button>
+                )}
+              </div>
+
+              <form className="grid gap-4">
+                {Object.entries(formData).map(([key, value]) => {
+                  const label = key.replaceAll("_", " ");
+                  const isId = key === "device_id";
+                  const isOrg = key === "organisation_id";
+                  return (
                     <div key={key}>
-                      <label className="block font-medium capitalize mb-1">
-                        {key.replace("_", " ")}
+                      <label className="form-label capitalize" htmlFor={key}>
+                        {label}
                       </label>
-                      {key === "organisation_id" ? (
+
+                      {isOrg ? (
                         editMode ? (
                           <select
+                            id={key}
                             name="organisation_id"
                             value={formData.organisation_id || ""}
                             onChange={handleChange}
-                            disabled={!editMode}
-                            className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 ${
-                              errors[key]
-                                ? "border-red-500 focus:ring-red-400"
-                                : "border-gray-300 focus:ring-indigo-500"
-                            }`}
+                            className={`input ${errors[key] ? "input-error" : ""}`}
                           >
-                            <option value="">
-                              {editMode ? "Select organisation" : "Not assigned"}
+                            <option value="" className="bg-white dark:bg-gray-900">
+                              Select organisation
                             </option>
                             {organisations.map((org) => (
-                              <option key={org.id} value={String(org.id)}>
+                              <option key={org.id} value={String(org.id)} className="bg-white dark:bg-gray-900">
                                 {org.name}
                               </option>
                             ))}
                           </select>
                         ) : (
                           <input
+                            id={key}
                             type="text"
                             name="organisation_id"
                             value={
-                              organisations.find(
-                                (org) => String(org.id) === String(formData.organisation_id)
-                              )?.name || "Not assigned"
+                              organisations.find((o) => String(o.id) === String(formData.organisation_id))?.name ||
+                              "Not assigned"
                             }
                             disabled
-                            className="w-full px-3 py-2 border rounded-md bg-gray-200 border-gray-300"
+                            className="input bg-gray-100 dark:bg-gray-800"
                           />
                         )
                       ) : (
                         <input
+                          id={key}
                           type="text"
                           name={key}
-                          value={value}
+                          value={value ?? ""}
                           onChange={handleChange}
-                          disabled={key === "device_id" || !editMode}
-                          className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 ${
-                            key === "device_id" || !editMode
-                              ? "bg-gray-200 border-gray-300"
-                              : errors[key]
-                              ? "border-red-500 focus:ring-red-400"
-                              : "border-gray-300 focus:ring-indigo-500"
+                          disabled={isId || !editMode}
+                          className={`input ${isId || !editMode ? "bg-gray-100 dark:bg-gray-800" : ""} ${
+                            errors[key] ? "input-error" : ""
                           }`}
                         />
                       )}
+
                       {errors[key] && (
-                        <p className="text-red-500 text-sm mt-1">{errors[key]}</p>
+                        <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors[key]}</p>
                       )}
                     </div>
-                  ))}
+                  );
+                })}
               </form>
-              <div className="mt-4 flex gap-3">
-                {editMode ? (
+
+              <div className="mt-5 flex items-center gap-2">
+                {editMode && (
                   <>
-                    <button
-                      onClick={handleSave}
-                      className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
-                    >
-                      Save Changes
+                    <button type="button" onClick={handleSave} className="btn-primary">
+                      Save changes
                     </button>
                     <button
+                      type="button"
                       onClick={handleCancel}
-                      className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
+                      className="rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-800 hover:bg-gray-100 dark:border-gray-700 dark:text-gray-100 dark:hover:bg-gray-800"
                     >
                       Cancel
                     </button>
                   </>
-                ) : (
-                  <button
-                    onClick={() => setEditMode(true)}
-                    className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-                  >
-                    Edit
-                  </button>
                 )}
               </div>
+            </div>
+          ) : (
+            <div className="card">
+              <p className="text-sm text-gray-600 dark:text-gray-300">Select a device from the list to view details.</p>
             </div>
           )}
         </div>

@@ -1,8 +1,11 @@
 import React from 'react'
 import { Link } from 'react-router-dom';
-import { Button, button }  from './Button';
-import './Navbar.css';
-import Dropdown from './Dropdown';
+// import { Button, button }  from './Button';
+import {Button, button } from '../../assets/js/Button';
+// import '../../assets/css/Navbar.css';
+import '../css/component/navbar.css';
+
+import Dropdown from '../../components/Dropdown';
 
 function Navbar({ userEmail, org, role }) {
     const[click, setClick] = React.useState(false);

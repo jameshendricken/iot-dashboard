@@ -1,0 +1,73 @@
+@tailwind components;
+
+.navbar {
+  @apply 
+  lg:bg-gradient-to-r 
+  lg:from-neutral-900 
+  lg:to-neutral-500 
+  lg:h-20 
+  lg:flex 
+  lg:justify-center 
+  lg:items-center 
+  lg:text-xl 
+  lg:text-white 
+  fixed top-0 left-0 w-full z-10 bg-gradient-to-r from-neutral-900 to-neutral-500 h-20 flex justify-center items-center text-xl text-white;
+}
+
+.navbar-logo {
+  @apply 
+  lg:text-white 
+  lg:justify-self-start 
+  lg:pr-10 
+  lg:cursor-pointer 
+  lg:no-underline 
+  lg:text-2xl
+  relative top-0 left-0 -translate-x-[5%] translate-y-[10%];
+}
+
+/* Use these Tailwind classes in your JSX/HTML instead of custom CSS */
+
+/* .navbar-user */
+.navbar-user {
+  @apply text-white mr-5 text-2xl justify-end;
+}
+
+/* .fa-firstdraft */
+.fa-firstdraft {
+  @apply text-white text-2xl;
+}
+
+/* .nav-menu */
+.nav-menu {
+  @apply grid grid-cols-4 gap-1 list-none text-center w-1/2 justify-end mr-8 pl-28;
+}
+
+
+/* .nav-item */
+.nav-item {
+  @apply flex items-center h-20 gap-[10vw];
+}
+
+
+/* .nav-links */
+.nav-links {
+  @apply text-white no-underline px-4 py-2 hover:bg-[#1888ff] hover:rounded hover:transition-all hover:duration-200;
+}
+
+
+/* .fa-bars */
+.fa-bars {
+  @apply text-white text-2xl;
+}
+
+
+/* .nav-links-mobile */
+.nav-links-mobile {
+  @apply hidden;
+}
+
+
+/* .menu-icon */
+.menu-icon {
+  @apply hidden;
+}

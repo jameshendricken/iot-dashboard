@@ -1,62 +1,103 @@
+// src/App.js
 import React from "react";
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
+
 import LoginRegisterPage from "./LoginRegisterPage";
-import DeviceData from "./DeviceData";
+import DeviceData from "./pages/DeviceData";
+import TailwindTest from "./pages/TailwindTest";
 import AdminDevicesPage from "./pages/AdminDevicesPage";
 import AdminUsersPage from "./pages/AdminUsersPage";
 import AdminOrgsPage from "./pages/AdminOrgPage";
 import LoginPage from "./pages/Login";
 import RegisterPage from "./pages/Register";
 import ResetPasswordPage from "./pages/ResetPassword";
-import Layout from "./components/Layout";
-import Navbar from "./components/Navbar";
+
+// import Navbar from "../assets/js/Navbar2";
+import Navbar from "./assets/js/Navbar2";
 import { AuthProvider, useAuth } from "./context/AuthContext";
+import { ThemeProvider } from "./theme/ThemeProvider.tsx";
+import "./assets/css/base/global.css";
+
+import { RequireAuth, RequireAdmin } from "./routes/guards";
 
 function AppRoutes() {
-  const { userEmail, userOrg, userRole } = useAuth();
+  const { userEmail, userOrg, userRole, logout } = useAuth?.() || {};
+
+  const handleLogout = async () => {
+    try {
+      if (typeof logout === "function") await logout();
+    } finally {
+      window.location.assign("/");
+    }
+  };
+
+  // Navbar items filtered by role
+  const navItems = [
+    { to: "/dashboard", label: "Dashboard" },
+    ...(userRole === "admin"
+      ? [
+          { to: "/admin/devices", label: "Admin Devices" },
+          { to: "/admin/users", label: "Admin Users" },
+          { to: "/admin/organisations", label: "Admin Orgs" },
+        ]
+      : []),
+    { to: "/tailwind", label: "Tailwind Test" },
+  ];
 
   return (
-    <>
-      {userEmail && <Navbar userEmail={userEmail} org={userOrg} role={userRole} />}
-      <Routes>
-        <Route
-          path="/"
-          element={
-            userEmail ? <Navigate to="/dashboard" replace /> : <LoginPage />
-          }
-        />
-        <Route
-          path="/dashboard"
-          element={
-            userEmail ? <DeviceData /> : <Navigate to="/" replace />
-          }
-        />
-        <Route
-          path="/admin/devices"
-          element={
-            userEmail && userRole === "admin" ? <AdminDevicesPage /> : <Navigate to="/" replace />
-          }
-        />
-        <Route
-          path="/admin/users"
-          element={
-            userEmail && userRole === "admin" ? <AdminUsersPage /> : <Navigate to="/" replace />
-          }
-        />
-        <Route
-          path="/admin/organisations"
-          element={
-            userEmail && userRole === "admin" ? <AdminOrgsPage /> : <Navigate to="/" replace />
-          }
-        />
-        <Route path="/reset-password" element={<ResetPasswordPage />} />
-        <Route path="/register" element={<RegisterPage />} />
-      </Routes>
-    </>
+    <ThemeProvider>
+      <div className="site-theme min-h-screen flex flex-col">
+        {userEmail && (
+          <Navbar
+            title="My App"
+            navItems={navItems}
+            userEmail={userEmail}
+            org={userOrg}
+            role={userRole}
+            onLogout={handleLogout}
+          />
+        )}
+
+        <div className="flex-1">
+          <Routes>
+            {/* Public routes */}
+            <Route
+              path="/"
+              element={
+                userEmail ? <Navigate to="/dashboard" replace /> : <LoginPage />
+              }
+            />
+            <Route path="/register" element={<RegisterPage />} />
+            <Route path="/reset-password" element={<ResetPasswordPage />} />
+
+            {/* Authenticated-only routes */}
+            <Route element={<RequireAuth />}>
+              <Route path="/dashboard" element={<DeviceData />} />
+              <Route path="/tailwind" element={<TailwindTest />} />
+
+              {/* Admin-only routes */}
+              <Route element={<RequireAdmin />}>
+                <Route path="/admin/devices" element={<AdminDevicesPage />} />
+                <Route path="/admin/users" element={<AdminUsersPage />} />
+                <Route path="/admin/organisations" element={<AdminOrgsPage />} />
+              </Route>
+            </Route>
+
+            {/* Fallback */}
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </div>
+      </div>
+    </ThemeProvider>
   );
 }
 
-function App() {
+export default function App() {
   return (
     <AuthProvider>
       <Router>
@@ -65,5 +106,3 @@ function App() {
     </AuthProvider>
   );
 }
-
-export default App;

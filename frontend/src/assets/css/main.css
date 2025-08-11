@@ -3,16 +3,13 @@
 @tailwind utilities; */
 
 @import "tailwindcss/base";
-@import "base/base";
+
 
 
 @import "tailwindcss/components";
-@import "components/button";
-@import "components/card";
-@import "components/navigation";
-@import "components/list";
 
 @import "tailwindcss/utilities";
+@import "../css/component/forms.css";
 
 /* 2a) Color tokens (light & dark) */
 :root {

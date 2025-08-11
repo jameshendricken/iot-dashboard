@@ -1,162 +1,100 @@
 .navbar {
-  background: linear-gradient(90deg, rgb(28, 27, 27) 0%, rgb(26, 23, 23) 100%);
-  height: 80px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-size: 1.2rem;
-  color: white;
+  @apply sm:bg-gradient-to-r sm:from-neutral-900 sm:to-neutral-500 sm:h-20 sm:flex sm:justify-center sm:items-center sm:text-xl sm:text-white ;
 }
 
 .navbar-logo {
-  color: #fff;
-  justify-self: start;
-  margin-left: 20px;
-  cursor: pointer;
-  text-decoration: none;
-  font-size: 2rem;
+  @apply text-white justify-self-start ml-5 cursor-pointer no-underline text-2xl;
 }
 
+/* Use these Tailwind classes in your JSX/HTML instead of custom CSS */
+
+/* .navbar-user */
 .navbar-user {
-  color: #fff;
-  margin-right: 20px;
-  font-size: 1.2rem;
-  justify-content: end;
+  @apply text-white mr-5 text-2xl justify-end;
 }
 
+/* .fa-firstdraft */
 .fa-firstdraft {
-  margin-left: 0.5rem;
-  font-size: 1.6rem;
+  @apply text-white text-2xl;
 }
 
+/* .nav-menu */
 .nav-menu {
-  display: grid;
-  grid-template-columns: repeat(5, auto);
-  grid-gap: 10px;
-  list-style: none;
-  text-align: center;
-  width: 50vw;
-  justify-content: end;
-  margin-right: 2rem;
+  @apply grid grid-cols-4 gap-1 list-none text-center w-1/2 justify-end mr-8;
 }
 
+
+/* .nav-item */
 .nav-item {
-  display: flex;
-  align-items: center;
-  height: 80px;
+  @apply flex items-center h-20 gap-[10vw];
 }
 
+
+/* .nav-links */
 .nav-links {
-  color: white;
-  text-decoration: none;
-  padding: 0.5rem 1rem;
+  @apply text-white no-underline px-4 py-2 hover:bg-[#1888ff] hover:rounded hover:transition-all hover:duration-200;
 }
 
-.nav-links:hover {
-  background-color: #1888ff;
-  border-radius: 4px;
-  transition: all 0.2s ease-out;
-}
 
+/* .fa-bars */
 .fa-bars {
-  color: #fff;
+  @apply text-white text-2xl;
 }
 
+
+/* .nav-links-mobile */
 .nav-links-mobile {
-  display: none;
+  @apply hidden;
 }
 
+
+/* .menu-icon */
 .menu-icon {
-  display: none;
+  @apply hidden;
 }
 
 @media screen and (max-width: 960px) {
   .navbar {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    z-index: 10;
+    @apply fixed top-0 left-0 w-full z-10;
   }
 
   .nav-menu {
-    display: none;
-    flex-direction: column;
-    width: 100%;
-    position: absolute;
-    top: -10vh;
-    left: 0;
-    opacity: 1;
-    transition: all 5s ease;
-    z-index: 5; /* Lower than navbar */
+    @apply hidden flex-col w-full absolute top-[-10vh] left-0 opacity-100 transition-all duration-[5000ms] ease-in z-[5];
   }
 
   .nav-menu.active {
-    background: #242222;
-    left: 0;
-    top: 80px;
-    opacity: 1;
-    transition: all 5s ease;
-    z-index: 5; /* Lower than navbar */
-    display: flex;
+    @apply bg-[#242222] left-0 top-20 opacity-100 transition-all duration-[5000ms] ease-in z-[5] flex;
   }
-    
 
   .nav-links {
-    text-align: center;
-    padding: 2rem;
-    width: 100%;
-    display: table;
-    vertical-align: top;
+    @apply text-center p-8 w-full table align-top;
   }
 
   .nav-links:hover {
-    background-color: #1888ff;
-    border-radius: 0;
+    @apply bg-[#1888ff] rounded-none;
   }
 
   .navbar-logo {
-    position: relative;
-    top: 0;
-    left: 0;
-    transform: translate(-5%, 10%);
+    @apply relative top-0 left-0 -translate-x-[5%] translate-y-[10%];
   }
 
   .menu-icon {
-    display: block;
-    position: absolute;
-    top: 0;
-    right: 0;
-    transform: translate(-100%, 60%);
-    font-size: 1.8rem;
-    cursor: pointer;
+    @apply block absolute top-0 right-0 -translate-x-full translate-y-[60%] text-[1.8rem] cursor-pointer;
   }
 
   .fa-times {
-    color: #fff;
-    font-size: 2rem;
+    @apply text-white text-2xl;
   }
 
   .nav-links-mobile {
-    display: block;
-    text-align: center;
-    padding: 1.5rem;
-    margin: 2rem auto;
-    border-radius: 4px;
-    width: 80%;
-    background: #1888ff;
-    text-decoration: none;
-    color: #fff;
-    font-size: 1.5rem;
+    @apply block text-center py-6 my-8 rounded w-4/5 bg-[#1888ff] no-underline text-white text-[1.5rem] mx-auto;
   }
 
   .nav-links-mobile:hover {
-    background: #fff;
-    color: #1888ff;
-    transition: 250ms;
+    @apply bg-white text-[#1888ff] transition duration-250;
   }
 
   button {
-    display: none;
+    @apply hidden;
   }
 }
