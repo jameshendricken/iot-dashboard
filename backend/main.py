@@ -660,3 +660,114 @@ def get_role(role_id: int):
         return {"id": row[0], "name": row[1]}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+    
+
+# --- List units for the user's org (like /devices) ---
+@app.get("/units")
+def list_units(request: Request):
+    user = getattr(request.state, "user", None)
+    if not user or not user.get("organisation_id"):
+        raise HTTPException(status_code=401, detail="Unauthenticated or organisation not set")
+
+    org_id = user["organisation_id"]
+    conn = get_connection(); cur = conn.cursor()
+    cur.execute("""
+        SELECT id, name, organisation_id, location, commissioned_at
+        FROM units
+        WHERE organisation_id = %s
+        ORDER BY name
+    """, (org_id,))
+    rows = cur.fetchall(); cur.close(); conn.close()
+    return [
+        {
+            "id": r[0],
+            "name": r[1],
+            "organisation_id": r[2],
+            "location": r[3],
+            "commissioned_at": r[4].isoformat() if r[4] else None,
+        }
+        for r in rows
+    ]
+
+# --- Unit metadata + current device (external device_id) ---
+@app.get("/unit")
+def get_unit(unitId: int = Query(..., description="units.id")):
+    conn = get_connection(); cur = conn.cursor()
+    cur.execute("""
+        SELECT
+          u.id, u.name, u.organisation_id, o.name AS organisation_name,
+          u.location, u.commissioned_at,
+          d.id AS device_pk, d.device_id AS current_device_id
+        FROM units u
+        LEFT JOIN organisations o ON o.id = u.organisation_id
+        LEFT JOIN LATERAL (
+          SELECT d.id, d.device_id
+          FROM unit_devices ud
+          JOIN devices d ON d.id = ud.device_id
+          WHERE ud.unit_id = u.id AND ud.active = TRUE
+          LIMIT 1
+        ) d ON TRUE
+        WHERE u.id = %s
+        LIMIT 1
+    """, (unitId,))
+    row = cur.fetchone(); cur.close(); conn.close()
+    if not row:
+        raise HTTPException(status_code=404, detail="Unit not found")
+
+    return {
+        "id": row[0],
+        "name": row[1],
+        "organisation_id": row[2],
+        "organisation_name": row[3],
+        "location": row[4],
+        "commissioned_at": row[5].isoformat() if row[5] else None,
+        "current_device": ({"device_pk": row[6], "device_id": row[7]} if row[7] else None)
+    }
+
+# --- ALL historical data for a unit (across device swaps) ---
+@app.get("/unit/data")
+def get_unit_data(
+    unitId: int = Query(...),
+    from_: Optional[str] = Query(None, alias="from"),
+    to: Optional[str]   = Query(None),
+    limit: int = Query(100000)
+):
+    conn = get_connection(); cur = conn.cursor()
+    cur.execute("""
+        SELECT
+          dd.timestamp, dd.volume_ml,
+          d.device_id AS device_id,
+          d.id        AS device_pk
+        FROM unit_devices ud
+        JOIN devices d
+          ON d.id = ud.device_id
+        JOIN device_data dd
+          ON dd.device_id = d.device_id
+         AND dd.timestamp >= ud.attached_at
+         AND dd.timestamp <  COALESCE(ud.detached_at, 'infinity')
+         AND (%s::timestamptz IS NULL OR dd.timestamp >= %s)
+         AND (%s::timestamptz IS NULL OR dd.timestamp <= %s)
+        WHERE ud.unit_id = %s
+        ORDER BY dd.timestamp
+        LIMIT %s
+    """, (from_, from_, to, to, unitId, limit))
+    rows = cur.fetchall(); cur.close(); conn.close()
+
+    # Build devices list and data array
+    devices = {}
+    data = []
+    for ts, vol, dev_id, dev_pk in rows:
+        if dev_pk not in devices:
+            devices[dev_pk] = {"device_pk": dev_pk, "device_id": dev_id}
+        data.append({
+            "timestamp": ts.isoformat() if isinstance(ts, datetime) else ts,
+            "volume_ml": vol,
+            "device_id": dev_id,
+            "device_pk": dev_pk
+        })
+
+    return {
+        "unitId": unitId,
+        "devices": list(devices.values()),
+        "data": data
+    }
