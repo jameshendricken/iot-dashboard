@@ -626,3 +626,37 @@ def update_user(user_id: int, payload: dict = Body(...)):
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+    
+@app.get("/roles")
+def get_users():
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
+        cursor.execute("SELECT id, name FROM roles")
+        rows = cursor.fetchall()
+        cursor.close()
+        conn.close()
+
+        if not rows:
+            raise HTTPException(status_code=404, detail="No users found")
+
+        return [{"id": row[0], "name": row[1]} for row in rows]
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    
+@app.get("/roles/{role_id}")
+def get_role(role_id: int):
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
+        cursor.execute("SELECT name FROM roles WHERE id = %s", (role_id,))
+        row = cursor.fetchone()
+        cursor.close()
+        conn.close()
+
+        if not row:
+            raise HTTPException(status_code=404, detail="User not found")
+
+        return {"id": row[0], "name": row[2]}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
