@@ -649,7 +649,7 @@ def get_role(role_id: int):
     try:
         conn = get_connection()
         cursor = conn.cursor()
-        cursor.execute("SELECT name FROM roles WHERE id = %s", (role_id,))
+        cursor.execute("SELECT id, name FROM roles WHERE id = %s", (role_id,))
         row = cursor.fetchone()
         cursor.close()
         conn.close()
