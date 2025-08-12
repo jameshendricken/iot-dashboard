@@ -15,7 +15,7 @@ export default function Navbar({
   navItems = [
     // sensible fallback if nothing is passed
     { to: "/dashboard", label: "Dashboard" },
-    { to: "/tailwind", label: "Tailwind Test" },
+    { to: "/units", label: "Unit Data" },
   ],
   userEmail,
   onLogout,

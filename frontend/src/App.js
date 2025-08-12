@@ -16,6 +16,7 @@ import AdminOrgsPage from "./pages/AdminOrgPage";
 import LoginPage from "./pages/Login";
 import RegisterPage from "./pages/Register";
 import ResetPasswordPage from "./pages/ResetPassword";
+import UnitData from "./pages/UnitData";
 
 // import Navbar from "../assets/js/Navbar2";
 import Navbar from "./assets/js/Navbar2";
@@ -39,6 +40,7 @@ function AppRoutes() {
   // Navbar items filtered by role
   const navItems = [
     { to: "/dashboard", label: "Dashboard" },
+    { to: "/units", label: "Units" },
     ...(userRole === "admin"
       ? [
           { to: "/admin/devices", label: "Admin Devices" },
@@ -46,7 +48,6 @@ function AppRoutes() {
           { to: "/admin/organisations", label: "Admin Orgs" },
         ]
       : []),
-    { to: "/tailwind", label: "Tailwind Test" },
   ];
 
   return (
@@ -54,7 +55,7 @@ function AppRoutes() {
       <div className="site-theme min-h-screen flex flex-col">
         {userEmail && (
           <Navbar
-            title="My App"
+            title="IoT Dashboard"
             navItems={navItems}
             userEmail={userEmail}
             org={userOrg}
@@ -78,7 +79,7 @@ function AppRoutes() {
             {/* Authenticated-only routes */}
             <Route element={<RequireAuth />}>
               <Route path="/dashboard" element={<DeviceData />} />
-              <Route path="/tailwind" element={<TailwindTest />} />
+              <Route path="/units" element={<UnitData />} />
 
               {/* Admin-only routes */}
               <Route element={<RequireAdmin />}>
